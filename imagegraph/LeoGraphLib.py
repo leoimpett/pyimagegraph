@@ -110,7 +110,7 @@ def loadIIIFManifest(manifestURL, maxDownload=100):
         data = json.loads(url.read().decode())
     canvases = data['sequences'][0]['canvases']
     imurls = [canvas['images'][0]['resource']['@id'] for canvas in canvases]
-    metalist = [data['label'] + ': ' + canvas['label'] for canvas in canvases]
+    metalist = [str(data['label']) + ': ' + str(canvas['label']) for canvas in canvases]
     imlist = []
     imurllist = []
     for imloc in tqdm.tqdm(imurls):
