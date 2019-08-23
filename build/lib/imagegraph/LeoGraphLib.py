@@ -301,7 +301,7 @@ def pol2cart(rho, phi):
     y = rho * np.sin(phi)
     return(x, y)
 
-def radialScatterImages(imCollection, angCoords, radCoords):
+def radialScatterImages(imCollection, angCoords, radCoords, axisRadius=750):
     imlist = [im['arrays'] for im in imCollection]
     plt.figure(figsize=(15,15))
     imwidth = 128
@@ -314,7 +314,7 @@ def radialScatterImages(imCollection, angCoords, radCoords):
     meanAng = np.mean(angCoords)
     angCoords = [np.pi*ang/meanAng for ang in angCoords]
     meanRad = np.mean(radCoords)
-    radCoords = [512*rad/meanRad for rad in radCoords]
+    radCoords = [axisRadius*rad/meanRad for rad in radCoords]
     for i in range(len(angCoords)):
         [xcoord, ycoord] = pol2cart(radCoords[i],angCoords[i]);
         xCoords.append(xcoord)
