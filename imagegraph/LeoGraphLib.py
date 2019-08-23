@@ -342,7 +342,7 @@ def matchORB(imageCollection1, imageCollection2):
             keypoints2 = descriptor_extractor.keypoints
             descriptors2 = descriptor_extractor.descriptors
             matches12 = skimage.feature.match_descriptors(descriptors1, descriptors2, cross_check=True, max_distance=0.25)
-            distanceMatrix[i,j] = 1.0/float(len(matches12))
+            distanceMatrix[i,j] = 1.0/float(0.5+len(matches12))
     return distanceMatrix
 
 def comment(commentText=" "):
