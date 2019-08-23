@@ -181,6 +181,18 @@ def getRGB(imCollection ):
         b_out.append(b)
     return r_out, g_out, b_out
 
+def getHSV(imCollection ):
+    print('extracting rgb...')
+    imlist = [im['arrays'] for im in imCollection]
+    r_out = []
+    g_out = []
+    b_out = []
+    for image in tqdm.tqdm(imlist):
+        [h, s, v] = np.mean(color.rgb2hsv(image),axis=(0,1))
+        h_out.append(h)
+        s_out.append(s)
+        v_out.append(v)
+    return h_out, s_out, v_out
 
 def getEntropy(imCollection ):
     print('extracting entropy...')
