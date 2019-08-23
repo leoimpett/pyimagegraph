@@ -115,11 +115,9 @@ def loadIIIFManifest(manifestURL, maxDownload=100):
 			imloc = canvas['images'][0]['resource']['@id'] 
 			imMeta = str(data['label']) + ': ' + str(canvas['label']) 
 			try:
-				# Reduce the quality to 256
-				myurl = imloc.split('/')
 				#This means please give me at most 256x256 - see https://iiif.io/api/image/2.1/#size
-				myurl[-3] = '!256,256'
-				imloc = "/".join(myurl)
+				if imloc[-4:] != '.jpg':
+					imloc += "/full/!256,256/0/default.jpg"
 				tmpim = io.imread(imloc)
 				if len(tmpim.shape) != 3:
 					tmpim = color.gray2rgb(tmpim)
@@ -130,9 +128,8 @@ def loadIIIFManifest(manifestURL, maxDownload=100):
 				imCollection.append(thisimage)
 			except (urllib.error.URLError, ssl.SSLError) as e:
 				print('SSL cert invalid, downloading anyway')
-				myurl = imloc.split('/')
-				myurl[-3] = '!256,256'
-				imloc = "/".join(myurl)
+				if imloc[-4:] != '.jpg':
+					imloc += "/full/!256,256/0/default.jpg"
 				tmpim = insecureImRead(imloc)
 				if len(tmpim.shape) != 3:
 					tmpim = color.gray2rgb(tmpim)
@@ -144,7 +141,7 @@ def loadIIIFManifest(manifestURL, maxDownload=100):
 			except:
 				print('Image not downloaded... ')
 				print(imloc)
-			imCollection = []
+				imCollection = []
 	return imCollection
 
 
