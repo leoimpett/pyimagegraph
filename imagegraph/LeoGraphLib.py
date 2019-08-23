@@ -15,7 +15,6 @@ from skimage import io, transform, color
 from scipy.spatial import distance
 import tensorflow as tf
 import os, tarfile, sys
-from google.colab import drive
 #Probably not good that skimage.io is refered to in the same way as the io library (as in io.BytesIO)
 
 ### Some helper functions here
@@ -86,6 +85,7 @@ def run_inference_on_array(array, sess):
 
 
 def loadGDriveImages(impaths='*.jpg' ):
+	from google.colab import drive
 	drive.mount('/content/drive')
 	print('reading images...')
 	imfilelist = glob.glob('/content/drive/My Drive/'+impaths)
@@ -231,16 +231,18 @@ def consolePrint(anyinput):
 	return 0
 
 
-def viewSingleImage(imageList, whichImage):
+def viewSingleImage(imCollection, whichImage):
+	imlist = [im['arrays'] for im in imCollection]
 	if whichImage is None:
 		whichImage = 0
 	whichImage = int(np.round(float(whichImage)))
-	tmpim = imageList[whichImage]
+	tmpim = imlist[whichImage]
 	plt.imshow(tmpim)
 	return 0
 
 
-def pixPlot(imageList, xCoords, yCoords):
+def pixPlot(imCollection, xCoords, yCoords):
+	imlist = [im['arrays'] for im in imCollection]
 	plt.figure(figsize=(15,15))
 	imwidth = round((np.max(xCoords) - np.min(xCoords))/ (0.15*len(xCoords)))
 	imheight = round((np.max(yCoords) - np.min(yCoords))/ (0.15*len(xCoords)))
@@ -249,7 +251,7 @@ def pixPlot(imageList, xCoords, yCoords):
 	print('plotting images...')
 	#plt.scatter(xCoords, yCoords)
 	for i in tqdm.tqdm(range(len(xCoords))):
-		thisim = imageList[i]
+		thisim = imlist[i]
 		left = xCoords[i]
 		right = left+imwidth
 		bottom = yCoords[i]
@@ -282,10 +284,10 @@ def displayNearestNeighbors(imCollection1, imCollection2, distanceMatrix):
 	background-color: rgba(0,0,0,0.1);
 	text-align:center !important;
 	}"""
-	urlList1 = imCollection1['urls']
-	imNames1 = imCollection1['meta']
-	urlList2 = imCollection2['urls']
-	imNames2 = imCollection2['meta']
+	urlList1 = [imc['urls'] for imc in imCollection1]
+	imNames1 = [imc['meta'] for imc in imCollection1]
+	urlList2 = [imc['urls'] for imc in imCollection2]
+	imNames2 = [imc['meta'] for imc in imCollection2]
 	for i in range(4):
 		htmlString += ".nnmyimage"+str(i)+"{display:none;} #myimage"+str(i)+":hover ~ .nnmyimage"+str(i)+"{display:inline-block;} #myimage"+str(i)+":hover{opacity:0.8;}"
 	htmlString += """.imagebox{margin-top: 5px; margin-bottom:5px; float:left;width:25%;height:100px;background-size: contain; background-position: center; background-repeat: no-repeat;}
