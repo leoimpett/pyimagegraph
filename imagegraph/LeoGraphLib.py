@@ -269,7 +269,7 @@ def viewSingleImage(imCollection, whichImage):
     return 0
 
 
-def pixPlot(imCollection, xCoords, yCoords):
+def scatterImages(imCollection, xCoords, yCoords):
     imlist = [im['arrays'] for im in imCollection]
     plt.figure(figsize=(15,15))
     imwidth = round((np.max(xCoords) - np.min(xCoords))/ (0.15*len(xCoords)))
@@ -290,6 +290,45 @@ def pixPlot(imCollection, xCoords, yCoords):
     plt.ylim([np.min(yCoords), np.max(yCoords)])
     return 0
 
+def cart2pol(x, y):
+    rho = np.sqrt(x**2 + y**2)
+    phi = np.arctan2(y, x)
+    return(rho, phi)
+
+def pol2cart(rho, phi):
+    x = rho * np.cos(phi)
+    y = rho * np.sin(phi)
+    return(x, y)
+
+def scatterImages(imCollection, angCoords, radCoords):
+    imlist = [im['arrays'] for im in imCollection]
+    plt.figure(figsize=(15,15))
+    imwidth = 128
+    imheight = 128
+    imwidth = np.max([imwidth, 0])
+    imheight = np.max([imheight, 0])
+    print('plotting images...')
+    xCoords = []
+    yCoords = []
+    meanAng = np.mean(angCoords)
+    angCoords = [np.pi*ang/meanAng for ang in angCoords]
+    meanRad = np.mean(radCoords)
+    radCoords = [1000*rad for rad in radCoords]
+    for i in tqdm.tqdm(range(len(angCoords))):
+        [xcoord, ycoord] = pol2cart(angCoords[i],radCoords[i]);
+        xCoords.append(xcoord)
+        yCoords.append(ycoord)
+        
+        thisim = imlist[i]
+        left = xcoord
+        right = left+imwidth
+        bottom = ycoord
+        top = bottom+imheight
+
+        plt.imshow(thisim, extent=[left, right, bottom, top])
+    plt.xlim([np.min(xCoords), np.max(xCoords)])
+    plt.ylim([np.min(yCoords), np.max(yCoords)])
+    return 0
 
 def displayNearestNeighbors(imCollection1, imCollection2, distanceMatrix):
 
