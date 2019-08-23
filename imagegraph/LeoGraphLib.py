@@ -299,7 +299,7 @@ def displayNearestNeighbors(imCollection1, imCollection2, distanceMatrix):
 		htmlString += "<div class='imagebox' id='myimage"+str(i)+"' style='background-image: url( " + '"' + urlList1[k] + '"' + ")' > <p class='igfilename'>" + imNames1[k] +  "</p> </div> "
 	htmlString +="""
 		<div style="float:left; clear:left; background-color: lightgray; width:100%; height:2px;"> </div>  """
-	for i in range(min(4,len(imCollection1)))
+	for i in range(min(4,len(imCollection1))):
 		for j in range(min(16,len(imCollection2))):
 			htmlString+= "<div class='imagebox nnmyimage"+str(i)+"' style='background-image: url( " + '"' + urlList2[nearest[i,j]] + '"' + ")' > </div> "
 	htmlString += "</div>"
