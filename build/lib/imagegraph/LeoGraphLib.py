@@ -309,6 +309,6 @@ def displayNearestNeighbors(imageCollection1, imageCollection2, distanceMatrix):
 	return 0
 
 
-	def comment(commentText=" "):
-		print(commentText)
-		return 0
+def comment(commentText=" "):
+	print(commentText)
+	return 0
