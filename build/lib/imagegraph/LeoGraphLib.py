@@ -107,45 +107,45 @@ def loadGDriveImages(impaths='*.jpg' ):
 def loadIIIFManifest(manifestURL, maxDownload=100):
 	print('downloading images from IIIF manifest...')
 
-	with urllib.request.urlopen(manifestURL, context=ssl._create_unverified_context()) as url:
-	data = json.loads(url.read().decode())
-	canvases = data['sequences'][0]['canvases']
 	imCollection = []
-	for canvas in canvases:
-		imloc = canvas['images'][0]['resource']['@id'] 
-		imMeta = str(data['label']) + ': ' + str(canvas['label']) 
-		try:
-			# Reduce the quality to 256
-			myurl = imloc.split('/')
-			#This means please give me at most 256x256 - see https://iiif.io/api/image/2.1/#size
-			myurl[-3] = '!256,256'
-			imloc = "/".join(myurl)
-			imurllist.append(imloc)
-			tmpim = io.imread(imloc)
-			if len(tmpim.shape) != 3:
-				tmpim = color.gray2rgb(tmpim)
-			thisimage = {}
-			thisimage['arrays'] = tmpim
-			thisimage['urls'] = imloc
-			thisimage['meta'] = imMeta
-			imCollection.append(thisimage)
-		except (urllib.error.URLError, ssl.SSLError) as e:
-			myurl = imloc.split('/')
-			myurl[-3] = '!256,256'
-			imloc = "/".join(myurl)
-			imurllist.append(imloc)
-			tmpim = insecureImRead(imloc)
-			if len(tmpim.shape) != 3:
-				tmpim = color.gray2rgb(tmpim)
-			thisimage = {}
-			thisimage['arrays'] = tmpim
-			thisimage['urls'] = imloc
-			thisimage['meta'] = imMeta
-			imCollection.append(thisimage)
-		except:
-			print('Image not downloaded... ')
-			print(imloc)
-		imCollection = []
+	with urllib.request.urlopen(manifestURL, context=ssl._create_unverified_context()) as url:
+		data = json.loads(url.read().decode())
+		canvases = data['sequences'][0]['canvases']
+		for canvas in canvases:
+			imloc = canvas['images'][0]['resource']['@id'] 
+			imMeta = str(data['label']) + ': ' + str(canvas['label']) 
+			try:
+				# Reduce the quality to 256
+				myurl = imloc.split('/')
+				#This means please give me at most 256x256 - see https://iiif.io/api/image/2.1/#size
+				myurl[-3] = '!256,256'
+				imloc = "/".join(myurl)
+				imurllist.append(imloc)
+				tmpim = io.imread(imloc)
+				if len(tmpim.shape) != 3:
+					tmpim = color.gray2rgb(tmpim)
+				thisimage = {}
+				thisimage['arrays'] = tmpim
+				thisimage['urls'] = imloc
+				thisimage['meta'] = imMeta
+				imCollection.append(thisimage)
+			except (urllib.error.URLError, ssl.SSLError) as e:
+				myurl = imloc.split('/')
+				myurl[-3] = '!256,256'
+				imloc = "/".join(myurl)
+				imurllist.append(imloc)
+				tmpim = insecureImRead(imloc)
+				if len(tmpim.shape) != 3:
+					tmpim = color.gray2rgb(tmpim)
+				thisimage = {}
+				thisimage['arrays'] = tmpim
+				thisimage['urls'] = imloc
+				thisimage['meta'] = imMeta
+				imCollection.append(thisimage)
+			except:
+				print('Image not downloaded... ')
+				print(imloc)
+			imCollection = []
 	return imCollection
 
 
@@ -309,5 +309,6 @@ def displayNearestNeighbors(imageCollection1, imageCollection2, distanceMatrix):
 	return 0
 
 
-	def comment():
+	def comment(commentText=" "):
+		print(commentText)
 		return 0
