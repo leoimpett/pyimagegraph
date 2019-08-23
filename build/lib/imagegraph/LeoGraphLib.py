@@ -20,19 +20,20 @@ import skimage.feature
 
 ### Some helper functions here
 
-def getSmaller(img):
+def getSmaller(img, coords=False, maxsize = 256):
     width = img.shape[0]
     height = img.shape[1]
-    maxsize = 256
     if width>height:
         newwidth = maxsize
         newheight = int(maxsize*(height/width))
-        img = transform.resize(img, (newwidth, newheight))
     else:
         newwidth = maxsize
         newheight = int(maxsize*(height/width))
+    if coords:
+        return [newwidth, newheight]
+    else:
         img = transform.resize(img, (newwidth, newheight))
-    return img
+        return img
         
         
         
@@ -184,9 +185,9 @@ def getRGB(imCollection ):
 def getHSV(imCollection ):
     print('extracting rgb...')
     imlist = [im['arrays'] for im in imCollection]
-    r_out = []
-    g_out = []
-    b_out = []
+    h_out = []
+    s_out = []
+    v_out = []
     for image in tqdm.tqdm(imlist):
         [h, s, v] = np.mean(color.rgb2hsv(image),axis=(0,1))
         h_out.append(h)
@@ -313,21 +314,22 @@ def scatterImages(imCollection, angCoords, radCoords):
     meanAng = np.mean(angCoords)
     angCoords = [np.pi*ang/meanAng for ang in angCoords]
     meanRad = np.mean(radCoords)
-    radCoords = [1000*rad for rad in radCoords]
-    for i in tqdm.tqdm(range(len(angCoords))):
-        [xcoord, ycoord] = pol2cart(angCoords[i],radCoords[i]);
+    radCoords = [512*rad/meanRad for rad in radCoords]
+    for i in range(len(angCoords)):
+        [xcoord, ycoord] = pol2cart(radCoords[i],angCoords[i]);
         xCoords.append(xcoord)
-        yCoords.append(ycoord)
-        
-        thisim = imlist[i]
+        yCoords.append(ycoord)        
+        thisim = imlist[i]        
+        [newheight, newwidth] = getSmaller(thisim, coords=True, maxsize = 128)
         left = xcoord
-        right = left+imwidth
+        right = left+newwidth
         bottom = ycoord
-        top = bottom+imheight
+        top = bottom+newheight
 
         plt.imshow(thisim, extent=[left, right, bottom, top])
-    plt.xlim([np.min(xCoords), np.max(xCoords)])
-    plt.ylim([np.min(yCoords), np.max(yCoords)])
+    plt.axis('off')
+    plt.xlim([np.min(xCoords-imwidth), np.max(xCoords+imwidth)])
+    plt.ylim([np.min(yCoords-imwidth), np.max(yCoords+imwidth)])
     return 0
 
 def displayNearestNeighbors(imCollection1, imCollection2, distanceMatrix):
