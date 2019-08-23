@@ -130,6 +130,7 @@ def loadIIIFManifest(manifestURL, maxDownload=100):
 				thisimage['meta'] = imMeta
 				imCollection.append(thisimage)
 			except (urllib.error.URLError, ssl.SSLError) as e:
+				print('SSL cert invalid, downloading anyway')
 				myurl = imloc.split('/')
 				myurl[-3] = '!256,256'
 				imloc = "/".join(myurl)
