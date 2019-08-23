@@ -375,6 +375,10 @@ def displayNearestNeighbors(imCollection1, imCollection2, distanceMatrix):
     display(HTML(htmlString))
     return 0
 
+
+def mergeLists(a, b):
+    return a+b
+
 def matchORB(imageCollection1, imageCollection2): 
 
     descriptor_extractor = skimage.feature.ORB(n_keypoints=90)
