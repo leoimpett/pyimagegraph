@@ -288,19 +288,19 @@ def displayNearestNeighbors(imCollection1, imCollection2, distanceMatrix):
 	imNames1 = [imc['meta'] for imc in imCollection1]
 	urlList2 = [imc['urls'] for imc in imCollection2]
 	imNames2 = [imc['meta'] for imc in imCollection2]
-	for i in range(4):
+	for i in range(min(4,len(imCollection1))):
 		htmlString += ".nnmyimage"+str(i)+"{display:none;} #myimage"+str(i)+":hover ~ .nnmyimage"+str(i)+"{display:inline-block;} #myimage"+str(i)+":hover{opacity:0.8;}"
 	htmlString += """.imagebox{margin-top: 5px; margin-bottom:5px; float:left;width:25%;height:100px;background-size: contain; background-position: center; background-repeat: no-repeat;}
 	</style>
 	<div style="height:600px; width:100%; display:inline-block; position:relative;">
 	"""
-	for i in range(4):
+	for i in range(min(4,len(imCollection1))):
 		k = centres[i]
 		htmlString += "<div class='imagebox' id='myimage"+str(i)+"' style='background-image: url( " + '"' + urlList1[k] + '"' + ")' > <p class='igfilename'>" + imNames1[k] +  "</p> </div> "
 	htmlString +="""
 		<div style="float:left; clear:left; background-color: lightgray; width:100%; height:2px;"> </div>  """
-	for i in range(4):
-		for j in range(16):
+	for i in range(min(4,len(imCollection1)))
+		for j in range(min(16,len(imCollection2))):
 			htmlString+= "<div class='imagebox nnmyimage"+str(i)+"' style='background-image: url( " + '"' + urlList2[nearest[i,j]] + '"' + ")' > </div> "
 	htmlString += "</div>"
 	display(HTML(htmlString))
