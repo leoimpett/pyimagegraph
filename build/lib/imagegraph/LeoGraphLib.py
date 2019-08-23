@@ -111,7 +111,7 @@ def loadIIIFManifest(manifestURL, maxDownload=100):
 	with urllib.request.urlopen(manifestURL, context=ssl._create_unverified_context()) as url:
 		data = json.loads(url.read().decode())
 		canvases = data['sequences'][0]['canvases']
-		for canvas in canvases:
+		for canvas in tqdm.tqdm(canvases):
 			imloc = canvas['images'][0]['resource']['@id'] 
 			imMeta = str(data['label']) + ': ' + str(canvas['label']) 
 			try:
@@ -120,7 +120,6 @@ def loadIIIFManifest(manifestURL, maxDownload=100):
 				#This means please give me at most 256x256 - see https://iiif.io/api/image/2.1/#size
 				myurl[-3] = '!256,256'
 				imloc = "/".join(myurl)
-				imurllist.append(imloc)
 				tmpim = io.imread(imloc)
 				if len(tmpim.shape) != 3:
 					tmpim = color.gray2rgb(tmpim)
@@ -134,7 +133,6 @@ def loadIIIFManifest(manifestURL, maxDownload=100):
 				myurl = imloc.split('/')
 				myurl[-3] = '!256,256'
 				imloc = "/".join(myurl)
-				imurllist.append(imloc)
 				tmpim = insecureImRead(imloc)
 				if len(tmpim.shape) != 3:
 					tmpim = color.gray2rgb(tmpim)
