@@ -182,7 +182,7 @@ def getEntropy(imCollection ):
 
 
 
-def getNNEmbedding(imageCollection):
+def getNNEmbedding(imCollection):
 	maybe_download_and_extract()
 	imlist = [im['arrays'] for im in imCollection]
 	predictions = []
@@ -264,7 +264,7 @@ def pixPlot(imageList, xCoords, yCoords):
 	return 0
 
 
-def displayNearestNeighbors(imageCollection1, imageCollection2, distanceMatrix):
+def displayNearestNeighbors(imCollection1, imCollection2, distanceMatrix):
 
 	# first, choose 4 random images to be centres...
 	L = distanceMatrix.shape[1]
@@ -285,10 +285,10 @@ def displayNearestNeighbors(imageCollection1, imageCollection2, distanceMatrix):
 	background-color: rgba(0,0,0,0.1);
 	text-align:center !important;
 	}"""
-	urlList1 = imageCollection1['urls']
-	imNames1 = imageCollection1['meta']
-	urlList2 = imageCollection2['urls']
-	imNames2 = imageCollection2['meta']
+	urlList1 = imCollection1['urls']
+	imNames1 = imCollection1['meta']
+	urlList2 = imCollection2['urls']
+	imNames2 = imCollection2['meta']
 	for i in range(4):
 		htmlString += ".nnmyimage"+str(i)+"{display:none;} #myimage"+str(i)+":hover ~ .nnmyimage"+str(i)+"{display:inline-block;} #myimage"+str(i)+":hover{opacity:0.8;}"
 	htmlString += """.imagebox{margin-top: 5px; margin-bottom:5px; float:left;width:25%;height:100px;background-size: contain; background-position: center; background-repeat: no-repeat;}
