@@ -301,7 +301,7 @@ def pol2cart(rho, phi):
     y = rho * np.sin(phi)
     return(x, y)
 
-def scatterImages(imCollection, angCoords, radCoords):
+def radialScatterImages(imCollection, angCoords, radCoords):
     imlist = [im['arrays'] for im in imCollection]
     plt.figure(figsize=(15,15))
     imwidth = 128
