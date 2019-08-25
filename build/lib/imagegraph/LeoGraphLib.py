@@ -33,6 +33,8 @@ def getSmaller(img, coords=False, maxsize = 256):
         return [newwidth, newheight]
     else:
         img = transform.resize(img, (newwidth, newheight))
+        if img.dtype == 'float64':
+            img = (255*img).astype(np.uint8)
         return img
         
         
