@@ -289,8 +289,10 @@ def scatterImages(imCollection, xCoords, yCoords):
         top = bottom+imheight
 
         plt.imshow(thisim, extent=[left, right, bottom, top])
-    plt.xlim([np.min(xCoords), np.max(xCoords)])
-    plt.ylim([np.min(yCoords), np.max(yCoords)])
+
+    plt.axis('off')
+    plt.xlim([np.min(xCoords-imwidth), np.max(xCoords+imwidth)])
+    plt.ylim([np.min(yCoords-imwidth), np.max(yCoords+imwidth)])
     return 0
 
 def cart2pol(x, y):
