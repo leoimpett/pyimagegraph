@@ -15,7 +15,7 @@ from skimage import io, transform, color
 from scipy.spatial import distance
 import tensorflow as tf
 import os, tarfile, sys
-import skimage.feature  
+import skimage.feature
 #Probably not good that skimage.io is refered to in the same way as the io library (as in io.BytesIO)
 
 ### Some helper functions here
@@ -36,9 +36,9 @@ def getSmaller(img, coords=False, maxsize = 256):
         if img.dtype == 'float64':
             img = (255*img).astype(np.uint8)
         return img
-        
-        
-        
+
+
+
 def encodeImage(myimage):
     pil_img = Image.fromarray(myimage)
     pil_img.thumbnail((128,128))
@@ -103,11 +103,17 @@ def run_inference_on_array(array, sess):
 
 
 
-def loadGDriveImages(impaths='*.jpg' ):
-    from google.colab import drive
-    drive.mount('/content/drive')
-    print('reading images...')
-    imfilelist = glob.glob('/content/drive/My Drive/'+impaths)
+def loadLocalImages(impaths='*.jpg' ):
+    try:
+        import google.colab
+        drive.mount('/content/drive')
+        print('Google Colab env detected. Reading images from Google Drive...')
+        imfilelist = glob.glob('/content/drive/My Drive/'+impaths)
+
+    except:
+        print('Not on Google Colab. Reading images from local drive...')
+        imfilelist = glob.glob(impaths)
+
     imCollection = []
     for imloc in tqdm.tqdm(imfilelist):
         tmpim = io.imread(imloc)
@@ -131,8 +137,8 @@ def loadIIIFManifest(manifestURL, maxDownload=100):
         data = json.loads(url.read().decode())
         canvases = data['sequences'][0]['canvases']
         for canvas in tqdm.tqdm(canvases):
-            imloc = canvas['images'][0]['resource']['@id'] 
-            imMeta = str(data['label']) + ': ' + str(canvas['label']) 
+            imloc = canvas['images'][0]['resource']['@id']
+            imMeta = str(data['label']) + ': ' + str(canvas['label'])
             try:
                 #This means please give me at most 256x256 - see https://iiif.io/api/image/2.1/#size
                 if imloc[-4:] != '.jpg':
@@ -322,8 +328,8 @@ def radialScatterImages(imCollection, angCoords, radCoords, axisRadius=750):
     for i in range(len(angCoords)):
         [xcoord, ycoord] = pol2cart(radCoords[i],angCoords[i]);
         xCoords.append(xcoord)
-        yCoords.append(ycoord)        
-        thisim = imlist[i]        
+        yCoords.append(ycoord)
+        thisim = imlist[i]
         [newheight, newwidth] = getSmaller(thisim, coords=True, maxsize = 128)
         left = xcoord
         right = left+newwidth
@@ -383,15 +389,15 @@ def displayNearestNeighbors(imCollection1, imCollection2, distanceMatrix):
 def mergeLists(a, b):
     return a+b
 
-def matchORB(imageCollection1, imageCollection2): 
+def matchORB(imageCollection1, imageCollection2):
 
     descriptor_extractor = skimage.feature.ORB(n_keypoints=90)
-    
+
     L1 = len(imageCollection1)
     L2 = len(imageCollection2)
-    
+
     distanceMatrix = np.zeros((L1,L2))
-    
+
     for i in tqdm.tqdm(range(L1)):
         img1 = imageCollection1[i]['arrays']
         descriptor_extractor.detect_and_extract(color.rgb2gray(img1))
