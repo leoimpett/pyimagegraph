@@ -98,35 +98,11 @@ def run_inference_on_array(array, sess):
     predictions = np.squeeze(predictions)
     return predictions
 
+
+
+
 ###  INPUTS
 
-
-
-
-def loadLocalImages(impaths='*.jpg' ):
-    try:
-        import google.colab
-        drive.mount('/content/drive')
-        print('Google Colab env detected. Reading images from Google Drive...')
-        imfilelist = glob.glob('/content/drive/My Drive/'+impaths)
-
-    except:
-        print('Not on Google Colab. Reading images from local drive...')
-        imfilelist = glob.glob(impaths)
-
-    imCollection = []
-    for imloc in tqdm.tqdm(imfilelist):
-        tmpim = io.imread(imloc)
-        if len(tmpim.shape) != 3:
-            tmpim = color.gray2rgb(tmpim)
-        if tmpim.shape[2] > 3:
-            tmpim = tmpim[:,:,:3]
-        thisimage = {}
-        thisimage['arrays'] = getSmaller(tmpim)
-        thisimage['urls'] = encodeImage(tmpim)
-        thisimage['meta'] = imloc.split('/')[-1]
-        imCollection.append(thisimage)
-    return imCollection
 
 
 def loadIIIFManifest(manifestURL, maxDownload=100):
@@ -169,6 +145,33 @@ def loadIIIFManifest(manifestURL, maxDownload=100):
                 imCollection = []
     return imCollection
 
+def loadLocalImages(impaths='*.jpg' ):
+    try:
+        import google.colab
+        drive.mount('/content/drive')
+        print('Google Colab env detected. Reading images from Google Drive...')
+        imfilelist = glob.glob('/content/drive/My Drive/'+impaths)
+
+    except:
+        print('Not on Google Colab. Reading images from local drive...')
+        imfilelist = glob.glob(impaths)
+
+    imCollection = []
+    for imloc in tqdm.tqdm(imfilelist):
+        tmpim = io.imread(imloc)
+        if len(tmpim.shape) != 3:
+            tmpim = color.gray2rgb(tmpim)
+        if tmpim.shape[2] > 3:
+            tmpim = tmpim[:,:,:3]
+        thisimage = {}
+        thisimage['arrays'] = getSmaller(tmpim)
+        thisimage['urls'] = encodeImage(tmpim)
+        thisimage['meta'] = imloc.split('/')[-1]
+        imCollection.append(thisimage)
+    return imCollection
+
+
+
 
 
 def injectFloat(floatstring='1.0'):
@@ -176,6 +179,54 @@ def injectFloat(floatstring='1.0'):
 
 ### IMAGE PROCESSING
 
+
+
+def getEntropy(imCollection ):
+    print('extracting entropy...')
+    imlist = [im['arrays'] for im in imCollection]
+    e_out = []
+    for image in tqdm.tqdm(imlist):
+        imgray = color.rgb2gray(image)
+        entr_img = entropy(imgray, disk(10))
+        e = np.mean(entr_img.flatten())
+        e_out.append(e)
+    return e_out
+
+
+def getNNEmbedding(imCollection):
+    maybe_download_and_extract()
+    imlist = [im['arrays'] for im in imCollection]
+    predictions = []
+    config = tf.ConfigProto()
+    config.gpu_options.allow_growth=True
+    create_graph()
+    with tf.Session(config=config) as sess:
+        for thisim in tqdm.tqdm(imlist):
+            predictions.append(run_inference_on_array(thisim, sess))
+    return predictions
+
+def matchORB(imageCollection1, imageCollection2):
+
+    descriptor_extractor = skimage.feature.ORB(n_keypoints=90)
+
+    L1 = len(imageCollection1)
+    L2 = len(imageCollection2)
+
+    distanceMatrix = np.zeros((L1,L2))
+
+    for i in tqdm.tqdm(range(L1)):
+        img1 = imageCollection1[i]['arrays']
+        descriptor_extractor.detect_and_extract(color.rgb2gray(img1))
+        keypoints1 = descriptor_extractor.keypoints
+        descriptors1 = descriptor_extractor.descriptors
+        for j in range(L2):
+            img2 = imageCollection2[j]['arrays']
+            descriptor_extractor.detect_and_extract(color.rgb2gray(img2))
+            keypoints2 = descriptor_extractor.keypoints
+            descriptors2 = descriptor_extractor.descriptors
+            matches12 = skimage.feature.match_descriptors(descriptors1, descriptors2, cross_check=True, max_distance=0.25)
+            distanceMatrix[i,j] = 1.0/float(0.5+len(matches12))
+    return distanceMatrix
 
 def getRGB(imCollection ):
     print('extracting rgb...')
@@ -203,38 +254,32 @@ def getHSV(imCollection ):
         v_out.append(v)
     return h_out, s_out, v_out
 
-def getEntropy(imCollection ):
-    print('extracting entropy...')
-    imlist = [im['arrays'] for im in imCollection]
-    e_out = []
-    for image in tqdm.tqdm(imlist):
-        imgray = color.rgb2gray(image)
-        entr_img = entropy(imgray, disk(10))
-        e = np.mean(entr_img.flatten())
-        e_out.append(e)
-    return e_out
+
+def detectFaces(imList):
+    import dlib
+    detector = dlib.get_frontal_face_detector()
+    faceImages = []
+    for thisIm in imList:
+        testimage = thisIm['arrays']
+        dets = detector(testimage, 1)
+        for myrect in dets:
+            crp = [myrect.left(), myrect.right(), myrect.top(), myrect.bottom()]
+            faceImages.append({'arrays':getSmaller(testimage[crp[2]:crp[3],crp[0]:crp[1],:]), 'urls':encodeImage(testimage), 'meta':thisIm['meta']})
+    return faceImages
 
 
-
-def getNNEmbedding(imCollection):
-    maybe_download_and_extract()
-    imlist = [im['arrays'] for im in imCollection]
-    predictions = []
-    config = tf.ConfigProto()
-    config.gpu_options.allow_growth=True
-    create_graph()
-    with tf.Session(config=config) as sess:
-        for thisim in tqdm.tqdm(imlist):
-            predictions.append(run_inference_on_array(thisim, sess))
-    return predictions
-
-#### DATA MANIPULATINO
+#### DATA MANIPULATION
 
 def reduceDims(vecList):
     my_tsne = manifold.TSNE(n_components=2)
     vecArr = np.asarray(vecList)
     xy = my_tsne.fit_transform(vecList)
     return xy[:,0], xy[:,1]
+
+
+def mergeLists(a, b):
+    return a+b
+
 
 
 def toList(vecList, indexX, indexY):
@@ -260,21 +305,6 @@ def scatterPlot(x, y):
     print('plotting xy...')
     plt.figure()
     plt.scatter(x, y)
-    return 0
-
-
-def consolePrint(anyinput):
-    print(anyinput)
-    return 0
-
-
-def viewSingleImage(imCollection, whichImage):
-    imlist = [im['arrays'] for im in imCollection]
-    if whichImage is None:
-        whichImage = 0
-    whichImage = int(np.round(float(whichImage)))
-    tmpim = imlist[whichImage]
-    plt.imshow(tmpim)
     return 0
 
 
@@ -342,32 +372,63 @@ def radialScatterImages(imCollection, angCoords, radCoords, axisRadius=750):
     plt.ylim([np.min(yCoords-imwidth), np.max(yCoords+imwidth)])
     return 0
 
-def displayNearestNeighbors(imCollection1, imCollection2, distanceMatrix):
+
+def saveAsGif(imL):
+    if imL:
+        import imageio
+        metastring = str(imL[0]['meta'])
+        filestring = "".join([c for c in metastring if c.isalnum()]) + '.gif'
+        print(filestring)
+        imageio.mimsave(filestring, [im['arrays'] for im in imL], format='GIF', duration=0.5)
+    return 0
+
+
+def showAllImages(imL):
+    print('This function has still to be implemented. Try swapping me for saveAsGif(imL??)')
+    return 0
+
+
+def viewSingleImage(imCollection, whichImage):
+    imlist = [im['arrays'] for im in imCollection]
+    if whichImage is None:
+        whichImage = 0
+    whichImage = int(np.round(float(whichImage)))
+    tmpim = imlist[whichImage]
+    plt.imshow(tmpim)
+    return 0
+
+
+def displayNearestNeighbors(imCollection1, imCollection2, distanceMatrix, queryList=[]):
 
     # first, choose 4 random images to be centres...
     L = distanceMatrix.shape[1]
+    w = distanceMatrix.shape[0]
+    w2 = min(4,w)
     nearest = np.zeros((4,L)).astype(int)
 
     centres = []
-    for i in range(4):
-        idx = np.random.randint(L)
-        centres.append(idx)
+    for i in range(w2):
+        if queryList:
+            centres.append(queryList[i])
+        else:
+            idx = np.random.randint(w)
+            centres.append(idx)
 
-    for i in range(4):
+    for i in range(w2):
         nearest[i,:] =  np.argsort(distanceMatrix[centres[i],:])
 
     htmlString = """<style>
     .igfilename {
     font-family: monospace;
     color:white;
-    background-color: rgba(0,0,0,0.1);
+    background-color: rgba(0,0,0,0.3);
     text-align:center !important;
     }"""
     urlList1 = [imc['urls'] for imc in imCollection1]
     imNames1 = [imc['meta'] for imc in imCollection1]
     urlList2 = [imc['urls'] for imc in imCollection2]
     imNames2 = [imc['meta'] for imc in imCollection2]
-    for i in range(min(4,len(imCollection1))):
+    for i in range(w2):
         htmlString += ".nnmyimage"+str(i)+"{display:none;} #myimage"+str(i)+":hover ~ .nnmyimage"+str(i)+"{display:inline-block;} #myimage"+str(i)+":hover{opacity:0.8;}"
     htmlString += """.imagebox{margin-top: 5px; margin-bottom:5px; float:left;width:25%;height:100px;background-size: contain; background-position: center; background-repeat: no-repeat;}
     </style>
@@ -380,38 +441,27 @@ def displayNearestNeighbors(imCollection1, imCollection2, distanceMatrix):
         <div style="float:left; clear:left; background-color: lightgray; width:100%; height:2px;"> </div>  """
     for i in range(min(4,len(imCollection1))):
         for j in range(min(16,len(imCollection2))):
-            htmlString+= "<div class='imagebox nnmyimage"+str(i)+"' style='background-image: url( " + '"' + urlList2[nearest[i,j]] + '"' + ")' > </div> "
+            htmlString+= "<div class='imagebox nnmyimage"+str(i)+"' style='background-image: url( " + '"' + urlList2[nearest[i,j]] + '"' + ")' > <p class='igfilename'>" + imNames2[nearest[i,j]] +  "</p> </div> "
     htmlString += "</div>"
     display(HTML(htmlString))
     return 0
 
 
-def mergeLists(a, b):
-    return a+b
+## MISC 
 
-def matchORB(imageCollection1, imageCollection2):
-
-    descriptor_extractor = skimage.feature.ORB(n_keypoints=90)
-
-    L1 = len(imageCollection1)
-    L2 = len(imageCollection2)
-
-    distanceMatrix = np.zeros((L1,L2))
-
-    for i in tqdm.tqdm(range(L1)):
-        img1 = imageCollection1[i]['arrays']
-        descriptor_extractor.detect_and_extract(color.rgb2gray(img1))
-        keypoints1 = descriptor_extractor.keypoints
-        descriptors1 = descriptor_extractor.descriptors
-        for j in range(L2):
-            img2 = imageCollection2[j]['arrays']
-            descriptor_extractor.detect_and_extract(color.rgb2gray(img2))
-            keypoints2 = descriptor_extractor.keypoints
-            descriptors2 = descriptor_extractor.descriptors
-            matches12 = skimage.feature.match_descriptors(descriptors1, descriptors2, cross_check=True, max_distance=0.25)
-            distanceMatrix[i,j] = 1.0/float(0.5+len(matches12))
-    return distanceMatrix
 
 def comment(commentText=" "):
     print(commentText)
     return 0
+        
+def consolePrint(anyinput):
+    print(anyinput)
+    return 0
+
+
+
+
+
+
+
+
