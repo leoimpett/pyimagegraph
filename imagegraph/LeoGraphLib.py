@@ -373,11 +373,21 @@ def radialScatterImages(imCollection, angCoords, radCoords, axisRadius=750):
     return 0
 
 
-def saveAsGif(imL):
+def saveAsGIF(imL):
     if imL:
+        imfilePre = ''
+        try:
+            import google.colab
+            drive.mount('/content/drive')
+            print('Google Colab env detected. Saving images to Google Drive...')
+            imfilePre =  '/content/drive/My Drive/' 
+
+        except:
+            print('Saving to local drive...')
+            
         import imageio
         metastring = str(imL[0]['meta'])
-        filestring = "".join([c for c in metastring if c.isalnum()]) + '.gif'
+        filestring = imfilePre + "".join([c for c in metastring if c.isalnum()]) + '.gif'
         print(filestring)
         imageio.mimsave(filestring, [im['arrays'] for im in imL], format='GIF', duration=0.5)
     return 0
