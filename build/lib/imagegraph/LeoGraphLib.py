@@ -264,7 +264,8 @@ def detectFaces(imList):
         dets = detector(testimage, 1)
         for myrect in dets:
             crp = [myrect.left(), myrect.right(), myrect.top(), myrect.bottom()]
-            faceImages.append({'arrays':getSmaller(testimage[crp[2]:crp[3],crp[0]:crp[1],:]), 'urls':encodeImage(testimage), 'meta':thisIm['meta']})
+            outim = getSmaller(testimage[crp[2]:crp[3],crp[0]:crp[1],:])
+            faceImages.append({'arrays':outim, 'urls':encodeImage(outim), 'meta':thisIm['meta']})
     return faceImages
 
 
