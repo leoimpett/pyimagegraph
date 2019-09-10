@@ -377,7 +377,7 @@ def saveAsGIF(imL):
     if imL:
         imfilePre = ''
         try:
-            import google.colab
+            from google.colab import drive
             drive.mount('/content/drive')
             print('Google Colab env detected. Saving images to Google Drive...')
             imfilePre =  '/content/drive/My Drive/' 
