@@ -147,7 +147,7 @@ def loadIIIFManifest(manifestURL, maxDownload=100):
 
 def loadLocalImages(impaths='*.jpg' ):
     try:
-        import google.colab
+        from google.colab import drive
         drive.mount('/content/drive')
         print('Google Colab env detected. Reading images from Google Drive...')
         imfilelist = glob.glob('/content/drive/My Drive/'+impaths)
