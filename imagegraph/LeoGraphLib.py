@@ -175,6 +175,7 @@ def loadLocalImages(impaths='*.jpg' ):
 
 	imCollection = []
 	for imloc in tqdm.tqdm(imfilelist):
+		if os.path.getsize(imloc) < 10000000
 		tmpim = io.imread(imloc)
 		if len(tmpim.shape) != 3:
 			tmpim = color.gray2rgb(tmpim)
