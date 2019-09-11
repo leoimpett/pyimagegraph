@@ -461,7 +461,7 @@ def displayNearestNeighbors(imCollection1, imCollection2, distanceMatrix, queryL
 		htmlString += ".nnmyimage"+str(i)+"{display:none;} #myimage"+str(i)+":hover ~ .nnmyimage"+str(i)+"{display:inline-block;} #myimage"+str(i)+":hover{opacity:0.8;}"
 	htmlString += """.imagebox{margin-top: 5px; margin-bottom:5px; float:left;width:25%;height:""" + str(imageheight) + """px;background-size: contain; background-position: center; background-repeat: no-repeat;}
 	</style>
-	<div style="  """ + str(imageheight*6) + """; width:100%; display:inline-block; position:relative;">
+	<div style=" height:""" + str(imageheight*6) + """; width:100%; display:inline-block; position:relative;">
 	"""
 	for i in range(min(4,len(imCollection1))):
 		k = centres[i]
