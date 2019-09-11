@@ -427,7 +427,7 @@ def viewSingleImage(imCollection, whichImage):
 	return 0
 
 
-def displayNearestNeighbors(imCollection1, imCollection2, distanceMatrix, queryList=[]):
+def displayNearestNeighbors(imCollection1, imCollection2, distanceMatrix, queryList=[], imageheight=100):
 
 	# first, choose 4 random images to be centres...
 	L = distanceMatrix.shape[1]
@@ -459,9 +459,9 @@ def displayNearestNeighbors(imCollection1, imCollection2, distanceMatrix, queryL
 	imNames2 = [imc['meta'] for imc in imCollection2]
 	for i in range(w2):
 		htmlString += ".nnmyimage"+str(i)+"{display:none;} #myimage"+str(i)+":hover ~ .nnmyimage"+str(i)+"{display:inline-block;} #myimage"+str(i)+":hover{opacity:0.8;}"
-	htmlString += """.imagebox{margin-top: 5px; margin-bottom:5px; float:left;width:25%;height:100px;background-size: contain; background-position: center; background-repeat: no-repeat;}
+	htmlString += """.imagebox{margin-top: 5px; margin-bottom:5px; float:left;width:25%;height:""" + str(imageheight) + """px;background-size: contain; background-position: center; background-repeat: no-repeat;}
 	</style>
-	<div style="height:600px; width:100%; display:inline-block; position:relative;">
+	<div style="  """ + str(imageheight*6) + """; width:100%; display:inline-block; position:relative;">
 	"""
 	for i in range(min(4,len(imCollection1))):
 		k = centres[i]
