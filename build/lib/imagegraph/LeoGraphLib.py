@@ -152,8 +152,11 @@ def loadLocalImages(impaths='*.jpg' ):
         print('Google Colab env detected. Reading images from Google Drive...')
         imfilelist = []
         if '.' not in impaths:
+        	separator = '/.'
+        	if impaths[-1] = '/':
+        		separator='.'
 			for extension in ['jpg','png','gif','jpeg','JPEG','JPG']:
-				imfilelist.extend(glob.glob('/content/drive/My Drive/' + impaths + extension, recursive=True))
+				imfilelist.extend(glob.glob('/content/drive/My Drive/' + impaths + separator+ extension, recursive=True))
 		else:
 			imfilelist = glob.glob('/content/drive/My Drive/' + impaths, recursive=True)
        
@@ -162,8 +165,11 @@ def loadLocalImages(impaths='*.jpg' ):
         print('Not on Google Colab. Reading images from local drive...')
         imfilelist = []
         if '.' not in impaths:
+        	separator = '/.'
+        	if impaths[-1] = '/':
+        		separator='.'
 			for extension in ['jpg','png','gif','jpeg','JPEG','JPG']:
-				imfilelist.extend(glob.glob( impaths + extension, recursive=True))
+				imfilelist.extend(glob.glob( impaths + separator+ extension, recursive=True))
 		else:
 			imfilelist = glob.glob('/content/drive/My Drive/' + impaths, recursive=True)
 
