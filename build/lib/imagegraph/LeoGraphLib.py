@@ -156,7 +156,7 @@ def loadLocalImages(impaths='*.jpg' ):
         	if impaths[-1] = '/':
         		separator='.'
 			for extension in ['jpg','png','gif','jpeg','JPEG','JPG']:
-				imfilelist.extend(glob.glob('/content/drive/My Drive/' + impaths + separator+ extension, recursive=True))
+				imfilelist += glob.glob('/content/drive/My Drive/' + impaths + separator+ extension, recursive=True)
 		else:
 			imfilelist = glob.glob('/content/drive/My Drive/' + impaths, recursive=True)
        
@@ -169,7 +169,7 @@ def loadLocalImages(impaths='*.jpg' ):
         	if impaths[-1] = '/':
         		separator='.'
 			for extension in ['jpg','png','gif','jpeg','JPEG','JPG']:
-				imfilelist.extend(glob.glob( impaths + separator+ extension, recursive=True))
+				imfilelist += glob.glob( impaths + separator+ extension, recursive=True)
 		else:
 			imfilelist = glob.glob('/content/drive/My Drive/' + impaths, recursive=True)
 
