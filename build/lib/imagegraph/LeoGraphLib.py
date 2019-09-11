@@ -150,11 +150,22 @@ def loadLocalImages(impaths='*.jpg' ):
         from google.colab import drive
         drive.mount('/content/drive')
         print('Google Colab env detected. Reading images from Google Drive...')
-        imfilelist = glob.glob('/content/drive/My Drive/'+impaths)
+        imfilelist = []
+        if '.' not in impaths:
+			for extension in ['jpg','png','gif','jpeg','JPEG','JPG']:
+				imfilelist.extend(glob.glob('/content/drive/My Drive/' + impaths + extension, recursive=True))
+		else:
+			imfilelist = glob.glob('/content/drive/My Drive/' + impaths, recursive=True)
+       
 
     except:
         print('Not on Google Colab. Reading images from local drive...')
-        imfilelist = glob.glob(impaths)
+        imfilelist = []
+        if '.' not in impaths:
+			for extension in ['jpg','png','gif','jpeg','JPEG','JPG']:
+				imfilelist.extend(glob.glob( impaths + extension, recursive=True))
+		else:
+			imfilelist = glob.glob('/content/drive/My Drive/' + impaths, recursive=True)
 
     imCollection = []
     for imloc in tqdm.tqdm(imfilelist):
