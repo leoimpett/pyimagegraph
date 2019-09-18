@@ -21,7 +21,7 @@ import skimage.feature
 
 ## Temporary stuff
 
-def getGNM():
+def getGNM(nImages=500):
 	mycsv = []
 	from google.colab import drive
 	drive.mount('/content/drive', force_remount=True)
@@ -31,7 +31,7 @@ def getGNM():
 			mycsv.append(row)
 
 	imageList = []
-	for row in tqdm.tqdm(mycsv[:500]):    
+	for row in tqdm.tqdm(mycsv[:nImages]):    
 		thisimage = io.imread(row[0].split(';')[0])
 		if len(thisimage.shape) != 3:
 			thisimage = color.gray2rgb(thisimage)
