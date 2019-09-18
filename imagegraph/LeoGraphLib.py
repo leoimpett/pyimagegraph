@@ -35,14 +35,17 @@ def loadGNM(nImages='500'):
 	np.random.shuffle(mycsv) # shuffle the image database
 	imageList = []
 	for row in tqdm.tqdm(mycsv[:nImages]):    
-		thisimage = io.imread(row[0].split(';')[0])
-		if len(thisimage.shape) != 3:
-			thisimage = color.gray2rgb(thisimage)
-		imDict = {}
-		imDict['arrays'] = thisimage
-		imDict['meta'] = row[1]
-		imDict['urls'] = row[0].split(';')[0]
-		imageList.append(imDict)
+		try:
+			thisimage = io.imread(row[0].split(';')[0])
+			if len(thisimage.shape) != 3:
+				thisimage = color.gray2rgb(thisimage)
+			imDict = {}
+			imDict['arrays'] = thisimage
+			imDict['meta'] = row[1]
+			imDict['urls'] = row[0].split(';')[0]
+			imageList.append(imDict)
+		except:
+			print('I couldnt read image: ' + str(row[0]))
 	return imageList
 
 
