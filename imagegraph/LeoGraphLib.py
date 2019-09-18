@@ -31,9 +31,10 @@ def loadGNM(nImages='500'):
 		csvreader = csv.reader(myfile)
 		for row in csvreader:
 			mycsv.append(row)
-	shuffledCSV = np.random.shuffle(mycsv) # shuffle the image database
+	print('Shuffling image database...')
+	np.random.shuffle(mycsv) # shuffle the image database
 	imageList = []
-	for row in tqdm.tqdm(shuffledCSV[:nImages]):    
+	for row in tqdm.tqdm(mycsv[:nImages]):    
 		thisimage = io.imread(row[0].split(';')[0])
 		if len(thisimage.shape) != 3:
 			thisimage = color.gray2rgb(thisimage)
