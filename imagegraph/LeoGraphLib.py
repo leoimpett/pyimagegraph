@@ -22,6 +22,7 @@ import skimage.feature
 ## Temporary stuff
 
 def getGNM(nImages=500):
+	import csv
 	mycsv = []
 	from google.colab import drive
 	drive.mount('/content/drive', force_remount=True)
