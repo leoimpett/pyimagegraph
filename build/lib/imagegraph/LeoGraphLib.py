@@ -32,7 +32,7 @@ def loadGNM(nImages='500'):
 		for row in csvreader:
 			mycsv.append(row)
 	print('Shuffling image database...')
-	np.random.shuffle(mycsv) # shuffle the image database
+	#np.random.shuffle(mycsv) # shuffle the image database
 	imageList = []
 	for row in tqdm.tqdm(mycsv[:nImages]):    
 		try:
