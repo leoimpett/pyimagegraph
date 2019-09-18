@@ -21,7 +21,7 @@ import skimage.feature
 
 ## Temporary stuff
 
-def getGNM(nImages='500'):
+def loadGNM(nImages='500'):
 	nImages = str(nImages)
 	import csv
 	mycsv = []
