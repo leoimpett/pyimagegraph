@@ -22,7 +22,7 @@ import skimage.feature
 ## Temporary stuff
 
 def loadGNM(nImages='500'):
-	nImages = str(nImages)
+	nImages = int(nImages)
 	import csv
 	mycsv = []
 	from google.colab import drive
