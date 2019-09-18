@@ -18,6 +18,34 @@ import os, tarfile, sys
 import skimage.feature
 #Probably not good that skimage.io is refered to in the same way as the io library (as in io.BytesIO)
 
+
+## Temporary stuff
+
+def getGNM():
+	mycsv = []
+	from google.colab import drive
+	drive.mount('/content/drive', force_remount=True)
+	with open("/content/drive/My Drive/Bilder GNM/gnm_data_red.csv2", "r") as myfile:
+		csvreader = csv.reader(myfile)
+		for row in csvreader:
+			mycsv.append(row)
+
+	imageList = []
+	for row in tqdm.tqdm(mycsv[:500]):    
+		thisimage = io.imread(row[0].split(';')[0])
+		if len(thisimage.shape) != 3:
+			thisimage = color.gray2rgb(thisimage)
+		imDict = {}
+		imDict['arrays'] = thisimage
+		imDict['meta'] = row[1]
+		imDict['urls'] = row[0].split(';')[0]
+		imageList.append(imDict)
+	return imageList
+
+
+
+
+
 ### Some helper functions here
 
 def getSmaller(img, coords=False, maxsize = 256):
