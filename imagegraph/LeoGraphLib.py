@@ -21,7 +21,8 @@ import skimage.feature
 
 ## Temporary stuff
 
-def getGNM(nImages=500):
+def getGNM(nImages='500'):
+	nImages = str(nImages)
 	import csv
 	mycsv = []
 	from google.colab import drive
