@@ -468,7 +468,7 @@ def saveAsGIF(imL):
 			
 		import imageio
 		metastring = str(imL[0]['meta'])
-		filestring = imfilePre + "".join([c for c in metastring if c.isalnum()]) + '.gif'
+		filestring = imfilePre + "".join([c for c in metastring if c.isalnum()]) + str(np.random.randint(999)) + '.gif'
 		print(filestring)
 		imageio.mimsave(filestring, [im['arrays'] for im in imL], format='GIF', duration=0.5)
 	return 0
