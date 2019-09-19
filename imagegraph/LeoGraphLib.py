@@ -348,8 +348,36 @@ def toList(vecList, indexX, indexY):
 def distanceMatrix(embeddings1, embeddings2):
 	embeddings1 = np.asarray(embeddings1)
 	embeddings2 = np.asarray(embeddings2)
+	#np.reshape(embeddings1, (len(embeddings1), np.newaxis() ))
 	distances = distance.cdist(embeddings1, embeddings2)
 	return distances
+
+
+def trainClassifier(x1, x2):
+	from sklearn import svm
+	x1 = np.asarray(x1)
+	x2 = np.asarray(x2)
+
+	X = np.concatenate((x1,x2),axis=0)
+
+	y1 =  list(np.zeros(x1.shape[0]) )
+	y2 =  list(np.ones(x2.shape[0]) )
+
+	y = np.asarray(y1 + y2)
+
+	myclassifier = svm.SVC(gamma='auto')
+	myclassifier.fit(X, y)
+
+	return myclassifier
+
+def applyClassifier(imageList,vectorList,myclassifier):
+	predictions = myclassifier.predict( np.asarray(vectorList) )
+	classOne = predictions==0
+	classTwo = predictions==1
+	imLOne = [imageList[i] for i in classOne if i]
+	imLTwo = [imageList[i] for i in classTwo if i]
+
+	return imLOne, imLTwo
 
 
 ### OUTPUTS
@@ -460,6 +488,17 @@ def viewSingleImage(imCollection, whichImage):
 	plt.imshow(tmpim)
 	return 0
 
+def showTwoImageSets(imCollection1, imCollection2):
+	plt.figure(figsize=(15,15))
+
+	for i in range(9):
+		plt.subplot(9,2,i+1)
+		plt.imshow(imCollection1[i]['arrays'])
+
+		plt.subplot(9,2,i+2)
+		plt.imshow(imCollection2[i]['arrays'])
+
+	return 0
 
 def displayNearestNeighbors(imCollection1, imCollection2, distanceMatrix, queryList=[], imageheight=100):
 
