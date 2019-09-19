@@ -493,11 +493,11 @@ def showTwoImageSets(imCollection1, imCollection2):
 
 	for i in range(9):
 		if len(imCollection1) > i:
-			plt.subplot(9,2,i+1)
+			plt.subplot(9,2,(i*2)+1)
 			plt.imshow(imCollection1[i]['arrays'])
 
 		if len(imCollection2) > i:
-			plt.subplot(9,2,i+2)
+			plt.subplot(9,2,(i*2)+2)
 			plt.imshow(imCollection2[i]['arrays'])
 
 	return 0
