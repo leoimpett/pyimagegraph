@@ -374,8 +374,8 @@ def applyClassifier(imageList,vectorList,myclassifier):
 	predictions = myclassifier.predict( np.asarray(vectorList) )
 	classOne = predictions==0
 	classTwo = predictions==1
-	imLOne = [imageList[i] for i in classOne if i]
-	imLTwo = [imageList[i] for i in classTwo if i]
+	imLOne = [imageList[i] for i, j in enumerate(classOne) if j]
+	imLTwo = [imageList[i] for i, j in enumerate(classTwo) if j]
 
 	return imLOne, imLTwo
 
