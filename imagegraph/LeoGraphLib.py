@@ -377,14 +377,16 @@ def applyClassifier(imageList,vectorList,myclassifier):
 	predictions = myclassifier.predict( np.asarray(vectorList) )
 	scores = myclassifier.decision_function(  np.asarray(vectorList)  )
 	myorder = list(np.argsort(scores))
-	thresh = np.where(scores>0)[0][0]
-	sortOne = myorder[:thresh]
+	try:
+		thresh = np.where(scores>0)[0][0]
+		sortOne = myorder[:thresh]
+		k = myorder[thresh:]
+		k.reverse()	
+		sortTwo = k
 
-	k = myorder[thresh:]
-	k.reverse()
-	
-	sortTwo = k
-
+	except:
+		sortOne = myorder
+		sortTwo = []
 
 	imLOne = [imageList[i] for i in sortOne]
 	imLTwo = [imageList[i] for i in sortTwo]
