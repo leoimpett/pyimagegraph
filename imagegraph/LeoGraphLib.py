@@ -375,10 +375,19 @@ def trainClassifier(x1, x2):
 
 def applyClassifier(imageList,vectorList,myclassifier):
 	predictions = myclassifier.predict( np.asarray(vectorList) )
-	classOne = predictions==0
-	classTwo = predictions==1
-	imLOne = [imageList[i] for i, j in enumerate(classOne) if j]
-	imLTwo = [imageList[i] for i, j in enumerate(classTwo) if j]
+	scores = myclassifier.decision_function(  np.asarray(vectorList)  )
+	myorder = list(np.argsort(scores))
+	thresh = np.where(scores>0)[0][0]
+	sortOne = myorder[:thresh]
+
+	k = myorder[thresh:]
+	k.reverse()
+	
+	sortTwo = k
+
+
+	imLOne = [imageList[i] for i in sortOne]
+	imLTwo = [imageList[i] for i in sortTwo]
 
 	return imLOne, imLTwo
 
