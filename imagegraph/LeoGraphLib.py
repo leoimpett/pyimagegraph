@@ -139,14 +139,15 @@ def run_inference_on_array(array, sess):
 
 
 
-def loadIIIFManifest(manifestURL, maxDownload=100):
+def loadIIIFManifest(manifestURL, maxDownload=1000):
 	print('downloading images from IIIF manifest...')
 
 	imCollection = []
 	with urllib.request.urlopen(manifestURL, context=ssl._create_unverified_context()) as url:
 		data = json.loads(url.read().decode())
 		canvases = data['sequences'][0]['canvases']
-		for canvas in tqdm.tqdm(canvases):
+		maxL = min(maxDownload, len(canvases)-1)
+		for canvas in tqdm.tqdm(canvases[:maxL]):
 			imloc = canvas['images'][0]['resource']['@id']
 			imMeta = str(data['label']) + ': ' + str(canvas['label'])
 			try:
