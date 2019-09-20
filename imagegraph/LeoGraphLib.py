@@ -153,6 +153,7 @@ def loadIIIFManifest(manifestURL, maxDownload=100):
 				#This means please give me at most 256x256 - see https://iiif.io/api/image/2.1/#size
 				if imloc[-4:] != '.jpg':
 					imloc += "/full/!256,256/0/default.jpg"
+				imloc.replace('/full/full/','/full/!256,256/')
 				tmpim = io.imread(imloc)
 				if len(tmpim.shape) != 3:
 					tmpim = color.gray2rgb(tmpim)
@@ -165,6 +166,7 @@ def loadIIIFManifest(manifestURL, maxDownload=100):
 				print('SSL cert invalid, downloading anyway')
 				if imloc[-4:] != '.jpg':
 					imloc += "/full/!256,256/0/default.jpg"
+				imloc.replace('/full/full/','/full/!256,256/')
 				tmpim = insecureImRead(imloc)
 				if len(tmpim.shape) != 3:
 					tmpim = color.gray2rgb(tmpim)
@@ -454,7 +456,7 @@ def radialScatterImages(imCollection, angCoords, radCoords, axisRadius=750):
 	return 0
 
 
-def saveAsGIF(imL):
+def saveAsGIF(imL, imsize=512):
 	if imL:
 		imfilePre = ''
 		try:
@@ -470,7 +472,7 @@ def saveAsGIF(imL):
 		metastring = str(imL[0]['meta'])
 		filestring = imfilePre + "".join([c for c in metastring if c.isalnum()]) + str(np.random.randint(999)) + '.gif'
 		print(filestring)
-		imageio.mimsave(filestring, [im['arrays'] for im in imL], format='GIF', duration=0.5)
+		imageio.mimsave(filestring, [getSmaller(im['arrays'], imsize) for im in imL], format='GIF', duration=0.5)
 	return 0
 
 
