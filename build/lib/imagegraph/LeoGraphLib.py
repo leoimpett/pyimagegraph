@@ -13,11 +13,13 @@ import requests
 from IPython.core.display import display, HTML
 from skimage import io, transform, color
 from scipy.spatial import distance
-import tensorflow as tf
+import tensorflow.compat.v1 as tf
 import os, tarfile, sys
 import skimage.feature
 #Probably not good that skimage.io is refered to in the same way as the io library (as in io.BytesIO)
 
+#Hack for now to get around TF v2....
+tf.disable_v2_behavior()
 
 ## Temporary stuff
 
@@ -379,12 +381,15 @@ def applyClassifier(imageList,vectorList,myclassifier):
 	myorder = list(np.argsort(scores))
 	try:
 		thresh = np.where(scores>0)[0][0]
+		if thresh == 0:
+			print('Everything is in class two!')
 		sortOne = myorder[:thresh]
 		k = myorder[thresh:]
 		k.reverse()	
 		sortTwo = k
 
 	except:
+		print('Everything is in class one! ')
 		sortOne = myorder
 		sortTwo = []
 
