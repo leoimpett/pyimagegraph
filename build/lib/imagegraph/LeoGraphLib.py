@@ -215,16 +215,19 @@ def loadLocalImages(impaths='*.jpg' ):
 	imCollection = []
 	for imloc in tqdm.tqdm(imfilelist):
 		if os.path.getsize(imloc) < 10000000:
-			tmpim = io.imread(imloc)
-			if len(tmpim.shape) != 3:
-				tmpim = color.gray2rgb(tmpim)
-			if tmpim.shape[2] > 3:
-				tmpim = tmpim[:,:,:3]
-			thisimage = {}
-			thisimage['arrays'] = getSmaller(tmpim)
-			thisimage['urls'] = encodeImage(tmpim)
-			thisimage['meta'] = imloc.split('/')[-1]
-			imCollection.append(thisimage)
+			try:
+				tmpim = io.imread(imloc)
+				if len(tmpim.shape) != 3:
+					tmpim = color.gray2rgb(tmpim)
+				if tmpim.shape[2] > 3:
+					tmpim = tmpim[:,:,:3]
+				thisimage = {}
+				thisimage['arrays'] = getSmaller(tmpim)
+				thisimage['urls'] = encodeImage(tmpim)
+				thisimage['meta'] = imloc.split('/')[-1]
+				imCollection.append(thisimage)
+			except:
+				print('failed to read file: ' + imloc)
 	return imCollection
 
 
