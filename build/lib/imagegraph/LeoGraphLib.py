@@ -425,10 +425,13 @@ def scatterImages(imCollection, xCoords, yCoords, imSizeFactor=1.0):
 	#plt.scatter(xCoords, yCoords)
 	for i in tqdm.tqdm(range(len(xCoords))):
 		thisim = imlist[i]
+
+		thisAspectRatio = thisim.shape[0]/thisim.shape[1]
+
 		left = xCoords[i]
 		right = left+imwidth
 		bottom = yCoords[i]
-		top = bottom+imheight
+		top = bottom+round(imheight*thisAspectRatio)
 
 		plt.imshow(thisim, extent=[left, right, bottom, top])
 
