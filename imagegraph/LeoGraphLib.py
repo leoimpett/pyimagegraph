@@ -14,8 +14,8 @@ from IPython.core.display import display, HTML
 from skimage import io, transform, color
 from scipy.spatial import distance
 
-%tensorflow_version 1.x
-import tensorflow as tf
+import tensorflow.compat.v1 as tf
+
 import os, tarfile, sys
 import skimage.feature
 #Probably not good that skimage.io is refered to in the same way as the io library (as in io.BytesIO)
