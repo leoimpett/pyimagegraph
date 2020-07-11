@@ -417,8 +417,8 @@ def scatterImages(imCollection, xCoords, yCoords, imSizeFactor=1.0):
 	imlist = [im['arrays'] for im in imCollection]
 	plt.figure(figsize=(15,15))
 	
-	imwidth = round((np.max(xCoords) - np.min(xCoords))/ (0.15*len(xCoords))*imSizeFactor)
-	imheight = round((np.max(yCoords) - np.min(yCoords))/ (0.15*len(xCoords))*imSizeFactor)
+	imwidth = np.ceil((np.max(xCoords) - np.min(xCoords))/ (0.15*len(xCoords))*imSizeFactor)
+	imheight = np.ceil((np.max(yCoords) - np.min(yCoords))/ (0.15*len(xCoords))*imSizeFactor)
 	imwidth = np.max([imwidth, 0])
 	imheight = np.max([imheight, 0])
 	print('plotting images...')
@@ -431,7 +431,7 @@ def scatterImages(imCollection, xCoords, yCoords, imSizeFactor=1.0):
 		left = xCoords[i]
 		right = left+imwidth
 		bottom = yCoords[i]
-		top = bottom+round(imheight*thisAspectRatio)
+		top = bottom+np.ceil(imheight*thisAspectRatio)
 
 		plt.imshow(thisim, extent=[left, right, bottom, top])
 
