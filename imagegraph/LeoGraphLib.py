@@ -14,14 +14,11 @@ from IPython.core.display import display, HTML
 from skimage import io, transform, color
 from scipy.spatial import distance
 
-import tensorflow.compat.v1 as tf
+
 
 import os, tarfile, sys
 import skimage.feature
 #Probably not good that skimage.io is refered to in the same way as the io library (as in io.BytesIO)
-
-#Hack for now to get around TF v2....
-tf.disable_v2_behavior()
 
 ## Temporary stuff
 
@@ -98,45 +95,6 @@ def imToBytes(myimage):
 	pil_img.save(buff, format="JPEG")
 	return buff.getvalue()
 
-## From Tensorflow Tutorials, slightly adapted. Some neural network helpers.
-def maybe_download_and_extract():
-	"""Download and extract model tar file."""
-	DATA_URL = 'http://download.tensorflow.org/models/image/imagenet/inception-2015-12-05.tgz'
-	model_dir = './'
-	dest_directory = model_dir
-	if not os.path.exists(dest_directory):
-		os.makedirs(dest_directory)
-	filename = DATA_URL.split('/')[-1]
-	filepath = os.path.join(dest_directory, filename)
-	if not os.path.exists(filepath):
-		print('Downloading neural network weights..')
-		filepath, _ = urllib.request.urlretrieve(DATA_URL, filepath)
-		print()
-		statinfo = os.stat(filepath)
-		print('Successfully downloaded', filename, statinfo.st_size, 'bytes.')
-	else:
-		print('Neural network weights already downloaded, extracting...')
-	tarfile.open(filepath, 'r:gz').extractall(dest_directory)
-
-def create_graph():
-	"""Creates a graph from saved GraphDef file and returns a saver."""
-	# Creates graph from saved graph_def.pb.
-	with tf.gfile.FastGFile(os.path.join('./', 'classify_image_graph_def.pb'), 'rb') as f:
-		graph_def = tf.GraphDef()
-		graph_def.ParseFromString(f.read())
-		_ = tf.import_graph_def(graph_def, name='')
-
-
-
-def run_inference_on_array(array, sess):
-	image_data = imToBytes(array)
-	softmax_tensor = sess.graph.get_tensor_by_name('pool_3:0')
-	predictions = sess.run(softmax_tensor,
-						   {'DecodeJpeg/contents:0': image_data})
-	predictions = np.squeeze(predictions)
-	return predictions
-
-
 
 
 ###  INPUTS
@@ -181,9 +139,8 @@ def loadIIIFManifest(manifestURL, maxDownload=1000):
 				thisimage['meta'] = imMeta
 				imCollection.append(thisimage)
 			except:
-				print('Image not downloaded... ')
-				print(imloc)
-				imCollection = []
+				print('Image not downloaded: ' + imloc)
+				# print(imloc)
 	return imCollection
 
 def loadLocalImages(impaths='*.jpg' ):
@@ -255,16 +212,25 @@ def getEntropy(imCollection ):
 	return e_out
 
 
-def getNNEmbedding(imCollection):
-	maybe_download_and_extract()
+def getNNEmbedding(imCollection, modelType='vgg16'):
+	from tensorflow.keras.preprocessing import image
+	from tensorflow.keras.applications.vgg16 import preprocess_input
+	print("Initiating model: "+modelType)
+	if modelType=='vgg16':
+		from tensorflow.keras.applications.vgg16 import VGG16
+		model = VGG16(weights='imagenet', include_top=False)
+	if modelType=='inceptionv3':
+		from tensorflow.keras.applications.inception_v3 import InceptionV3
+		model = InceptionV3(weights='imagenet', include_top=False)
+	if modelType=='efficientnet':
+		from tensorflow.keras.applications import EfficientNetB3
+		model = EfficientNetB3(weights='imagenet',include_top=False)
 	imlist = [im['arrays'] for im in imCollection]
 	predictions = []
-	config = tf.ConfigProto()
-	config.gpu_options.allow_growth=True
-	create_graph()
-	with tf.Session(config=config) as sess:
-		for thisim in tqdm.tqdm(imlist):
-			predictions.append(run_inference_on_array(thisim, sess))
+	for thisim in tqdm.tqdm(imlist):
+		x = np.expand_dims(transform.resize(thisim,(224,224)), axis=0)
+		x = preprocess_input(x)
+		predictions.append(model.predict(x).flatten())
 	return predictions
 
 def matchORB(imageCollection1, imageCollection2):
