@@ -372,11 +372,20 @@ def applyClassifier(imageList,vectorList,myclassifier):
 
 ### OUTPUTS
 
-def scatterPlot(x, y):
-	print('plotting xy...')
-	plt.figure()
-	plt.scatter(x, y)
+# Scatterplot with Plotly
+def scatterPlot(X_in, Y_in):
+	import plotly.express as px
+	idx = ["#{}".format(x) for x in range(len(X_in))]
+	fig = px.scatter(x=X_in, y=Y_in, hover_name=idx)
+	fig.show()
 	return 0
+
+# Old Scatterplot
+# def scatterPlot(x, y):
+# 	print('plotting xy...')
+# 	plt.figure()
+# 	plt.scatter(x, y)
+# 	return 0
 
 
 def scatterImages(imCollection, xCoords, yCoords, imSizeFactor=1.0):
