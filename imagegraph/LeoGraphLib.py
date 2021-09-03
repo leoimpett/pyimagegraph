@@ -143,24 +143,35 @@ def loadIIIFManifest(manifestURL, maxDownload=1000):
 				# print(imloc)
 	return imCollection
 
-def loadLocalImages(impaths='*.jpg' ):
-	try:
-		from google.colab import drive
-		drive.mount('/content/drive')
-		print('Google Colab env detected. Reading images from Google Drive...')
-		imfilelist = []
-		if '.' not in impaths:
-			separator = '/*.'
-			if impaths[-1] == '/':
-				separator='*.'
-			for extension in ['jpg','png','gif','jpeg','JPEG','JPG']:
-				imfilelist += glob.glob('/content/drive/My Drive/' + impaths + separator+ extension, recursive=True)
-		else:
-			imfilelist = glob.glob('/content/drive/My Drive/' + impaths, recursive=True)
-	
+def loadLocalImages(impaths='*.jpg', googleDrive=True ):
+	if googleDrive:
+		try:
+			from google.colab import drive
+			drive.mount('/content/drive')
+			print('Google Colab env detected. Reading images from Google Drive...')
+			imfilelist = []
+			if '.' not in impaths:
+				separator = '/*.'
+				if impaths[-1] == '/':
+					separator='*.'
+				for extension in ['jpg','png','gif','jpeg','JPEG','JPG']:
+					imfilelist += glob.glob('/content/drive/My Drive/' + impaths + separator+ extension, recursive=True)
+			else:
+				imfilelist = glob.glob('/content/drive/My Drive/' + impaths, recursive=True)
 
-	except:
-		print('Not on Google Colab. Reading images from local drive...')
+		except:
+			print('Not on Google Colab. Reading images from local drive...')
+			imfilelist = []
+			if '.' not in impaths:
+				separator = '*/.'
+				if impaths[-1] == '/':
+					separator='*.'
+				for extension in ['jpg','png','gif','jpeg','JPEG','JPG']:
+					imfilelist += glob.glob( impaths + separator+ extension, recursive=True)
+			else:
+				imfilelist = glob.glob('/content/drive/My Drive/' + impaths, recursive=True)
+	else:
+		print('Reading images from local drive...')
 		imfilelist = []
 		if '.' not in impaths:
 			separator = '*/.'
