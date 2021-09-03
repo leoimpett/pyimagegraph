@@ -299,12 +299,15 @@ def detectFaces(imList):
 	detector = dlib.get_frontal_face_detector()
 	faceImages = []
 	for thisIm in imList:
-		testimage = thisIm['arrays']
-		dets = detector(testimage, 1)
-		for myrect in dets:
-			crp = [myrect.left(), myrect.right(), myrect.top(), myrect.bottom()]
-			outim = getSmaller(testimage[crp[2]:crp[3],crp[0]:crp[1],:])
-			faceImages.append({'arrays':outim, 'urls':encodeImage(outim), 'meta':thisIm['meta']})
+		try:
+			testimage = thisIm['arrays']
+			dets = detector(testimage, 1)
+			for myrect in dets:
+				crp = [myrect.left(), myrect.right(), myrect.top(), myrect.bottom()]
+				outim = getSmaller(testimage[crp[2]:crp[3],crp[0]:crp[1],:])
+				faceImages.append({'arrays':outim, 'urls':encodeImage(outim), 'meta':thisIm['meta']})
+		except:
+			print("{} failed to detect".format(thisIm['meta']))
 	return faceImages
 
 
