@@ -180,7 +180,7 @@ def loadLocalImages(impaths='*.jpg', googleDrive=True ):
 			for extension in ['jpg','png','gif','jpeg','JPEG','JPG']:
 				imfilelist += glob.glob( impaths + separator+ extension, recursive=True)
 		else:
-			imfilelist = glob.glob('/content/drive/My Drive/' + impaths, recursive=True)
+			imfilelist = glob.glob(impaths, recursive=True)
 
 	imCollection = []
 	for imloc in tqdm.tqdm(imfilelist):
