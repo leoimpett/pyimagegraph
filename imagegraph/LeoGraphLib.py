@@ -143,7 +143,10 @@ def loadIIIFManifest(manifestURL, maxDownload=1000):
 				# print(imloc)
 	return imCollection
 
-def loadLocalImages(impaths='*.jpg', googleDrive=True ):
+def loadLocalImages(impaths='*.jpg', googleDrive=True, extensions=['jpg','png','gif','jpeg'] ):
+	
+	acceptedFileFormats = ['jpg','png','gif','jpeg','JPG','PNG','GIF','JPEG']
+	
 	if googleDrive:
 		try:
 			from google.colab import drive
@@ -154,8 +157,11 @@ def loadLocalImages(impaths='*.jpg', googleDrive=True ):
 				separator = '/*.'
 				if impaths[-1] == '/':
 					separator='*.'
-				for extension in ['jpg','png','gif','jpeg','JPEG','JPG']:
-					imfilelist += glob.glob('/content/drive/My Drive/' + impaths + separator+ extension, recursive=True)
+				for extension in extensions:
+					if extension not in acceptedFileFormats:
+						print('extension ' + extension + ' is not acceptable file format (' + acceptedFileFormats + ').')
+					else:
+						imfilelist += glob.glob('/content/drive/My Drive/' + impaths + separator + extension, recursive=True)
 			else:
 				imfilelist = glob.glob('/content/drive/My Drive/' + impaths, recursive=True)
 
@@ -166,8 +172,11 @@ def loadLocalImages(impaths='*.jpg', googleDrive=True ):
 				separator = '*/.'
 				if impaths[-1] == '/':
 					separator='*.'
-				for extension in ['jpg','png','gif','jpeg','JPEG','JPG']:
-					imfilelist += glob.glob( impaths + separator+ extension, recursive=True)
+				for extension in extensions:
+					if extension not in acceptedFileFormats:
+						print('extension ' + extension + ' is not acceptable file format (' + acceptedFileFormats + ').')
+					else:
+						imfilelist += glob.glob( impaths + separator + extension, recursive=True)
 			else:
 				imfilelist = glob.glob('/content/drive/My Drive/' + impaths, recursive=True)
 	else:
@@ -177,8 +186,11 @@ def loadLocalImages(impaths='*.jpg', googleDrive=True ):
 			separator = '*/.'
 			if impaths[-1] == '/':
 				separator='*.'
-			for extension in ['jpg','png','gif','jpeg','JPEG','JPG']:
-				imfilelist += glob.glob( impaths + separator+ extension, recursive=True)
+			for extension in extensions:
+				if extension not in acceptedFileFormats:
+					print('extension ' + extension + ' is not acceptable file format (' + acceptedFileFormats + ').')
+				else:
+					imfilelist += glob.glob( impaths + separator + extension, recursive=True)
 		else:
 			imfilelist = glob.glob(impaths, recursive=True)
 
