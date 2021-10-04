@@ -145,7 +145,7 @@ def loadIIIFManifest(manifestURL, maxDownload=1000):
 
 def loadLocalImages(impaths='*.jpg', googleDrive=True, extensions=['jpg','png','gif','jpeg'] ):
 	
-	acceptedFileFormats = ['jpg','png','gif','jpeg','JPEG','JPG']
+	acceptedFileFormats = ['jpg','png','gif','jpeg','JPG','PNG','GIF','JPEG']
 	
 	if googleDrive:
 		try:
