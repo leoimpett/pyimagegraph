@@ -149,7 +149,7 @@ def loadIIIFManifest(manifestURL, maxDownload=1000):
 				# print(imloc)
 	return imCollection
 
-def loadLocalImages(impaths='*.jpg', googleDrive=True, extensions=['jpg','png','gif','jpeg'] ):
+def loadLocalImages(impaths='*.jpg', googleDrive=True):
 	
 	acceptedFileFormats = ['jpg','png','gif','jpeg','JPG','PNG','GIF','JPEG']
 	
@@ -163,11 +163,8 @@ def loadLocalImages(impaths='*.jpg', googleDrive=True, extensions=['jpg','png','
 				separator = '/*.'
 				if impaths[-1] == '/':
 					separator='*.'
-				for extension in extensions:
-					if extension not in acceptedFileFormats:
-						print('extension ' + extension + ' is not acceptable file format (' + acceptedFileFormats + ').')
-					else:
-						imfilelist += glob.glob('/content/drive/My Drive/' + impaths + separator + extension, recursive=True)
+				for extension in acceptedFileFormats:
+					imfilelist += glob.glob('/content/drive/My Drive/' + impaths + separator + extension, recursive=True)
 			else:
 				imfilelist = glob.glob('/content/drive/My Drive/' + impaths, recursive=True)
 
@@ -178,11 +175,8 @@ def loadLocalImages(impaths='*.jpg', googleDrive=True, extensions=['jpg','png','
 				separator = '*/.'
 				if impaths[-1] == '/':
 					separator='*.'
-				for extension in extensions:
-					if extension not in acceptedFileFormats:
-						print('extension ' + extension + ' is not acceptable file format (' + acceptedFileFormats + ').')
-					else:
-						imfilelist += glob.glob( impaths + separator + extension, recursive=True)
+				for extension in acceptedFileFormats:
+					imfilelist += glob.glob( impaths + separator + extension, recursive=True)
 			else:
 				imfilelist = glob.glob('/content/drive/My Drive/' + impaths, recursive=True)
 	else:
@@ -192,30 +186,29 @@ def loadLocalImages(impaths='*.jpg', googleDrive=True, extensions=['jpg','png','
 			separator = '*/.'
 			if impaths[-1] == '/':
 				separator='*.'
-			for extension in extensions:
-				if extension not in acceptedFileFormats:
-					print('extension ' + extension + ' is not acceptable file format (' + acceptedFileFormats + ').')
-				else:
-					imfilelist += glob.glob( impaths + separator + extension, recursive=True)
+			for extension in acceptedFileFormats:
+				imfilelist += glob.glob( impaths + separator + extension, recursive=True)
 		else:
 			imfilelist = glob.glob(impaths, recursive=True)
 
 	imCollection = []
 	for imloc in tqdm.tqdm(imfilelist):
 		if os.path.getsize(imloc) < 10000000:
-			try:
-				tmpim = io.imread(imloc)
-				if len(tmpim.shape) != 3:
-					tmpim = color.gray2rgb(tmpim)
-				if tmpim.shape[2] > 3:
-					tmpim = tmpim[:,:,:3]
-				thisimage = {}
-				thisimage['arrays'] = getSmaller(tmpim)
-				thisimage['urls'] = encodeImage(tmpim)
-				thisimage['meta'] = imloc.split('/')[-1]
-				imCollection.append(thisimage)
-			except:
-				print('failed to read file: ' + imloc)
+			fileExten = imloc.split('.')[-1] 
+			if fileExten in acceptedFileFormats:
+				try:
+					tmpim = io.imread(imloc)
+					if len(tmpim.shape) != 3:
+						tmpim = color.gray2rgb(tmpim)
+					if tmpim.shape[2] > 3:
+						tmpim = tmpim[:,:,:3]
+					thisimage = {}
+					thisimage['arrays'] = getSmaller(tmpim)
+					thisimage['urls'] = encodeImage(tmpim)
+					thisimage['meta'] = imloc.split('/')[-1]
+					imCollection.append(thisimage)
+				except:
+					print('failed to read file: ' + imloc)
 	return imCollection
 
 
