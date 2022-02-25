@@ -16,7 +16,7 @@ from scipy.spatial import distance
 
 
 
-import os, tarfile, sys
+import os, tarfile, sys, shutil
 import skimage.feature
 #Probably not good that skimage.io is refered to in the same way as the io library (as in io.BytesIO)
 
@@ -143,7 +143,10 @@ def loadIIIFManifest(manifestURL, maxDownload=1000):
 				# print(imloc)
 	return imCollection
 
-def loadLocalImages(impaths='*.jpg', googleDrive=True ):
+def loadLocalImages(impaths='*.jpg', googleDrive=True, extensions=['jpg','png','gif','jpeg'] ):
+	
+	acceptedFileFormats = ['jpg','png','gif','jpeg','JPG','PNG','GIF','JPEG']
+	
 	if googleDrive:
 		try:
 			from google.colab import drive
@@ -154,8 +157,11 @@ def loadLocalImages(impaths='*.jpg', googleDrive=True ):
 				separator = '/*.'
 				if impaths[-1] == '/':
 					separator='*.'
-				for extension in ['jpg','png','gif','jpeg','JPEG','JPG']:
-					imfilelist += glob.glob('/content/drive/My Drive/' + impaths + separator+ extension, recursive=True)
+				for extension in extensions:
+					if extension not in acceptedFileFormats:
+						print('extension ' + extension + ' is not acceptable file format (' + acceptedFileFormats + ').')
+					else:
+						imfilelist += glob.glob('/content/drive/My Drive/' + impaths + separator + extension, recursive=True)
 			else:
 				imfilelist = glob.glob('/content/drive/My Drive/' + impaths, recursive=True)
 
@@ -166,8 +172,11 @@ def loadLocalImages(impaths='*.jpg', googleDrive=True ):
 				separator = '*/.'
 				if impaths[-1] == '/':
 					separator='*.'
-				for extension in ['jpg','png','gif','jpeg','JPEG','JPG']:
-					imfilelist += glob.glob( impaths + separator+ extension, recursive=True)
+				for extension in extensions:
+					if extension not in acceptedFileFormats:
+						print('extension ' + extension + ' is not acceptable file format (' + acceptedFileFormats + ').')
+					else:
+						imfilelist += glob.glob( impaths + separator + extension, recursive=True)
 			else:
 				imfilelist = glob.glob('/content/drive/My Drive/' + impaths, recursive=True)
 	else:
@@ -177,8 +186,11 @@ def loadLocalImages(impaths='*.jpg', googleDrive=True ):
 			separator = '*/.'
 			if impaths[-1] == '/':
 				separator='*.'
-			for extension in ['jpg','png','gif','jpeg','JPEG','JPG']:
-				imfilelist += glob.glob( impaths + separator+ extension, recursive=True)
+			for extension in extensions:
+				if extension not in acceptedFileFormats:
+					print('extension ' + extension + ' is not acceptable file format (' + acceptedFileFormats + ').')
+				else:
+					imfilelist += glob.glob( impaths + separator + extension, recursive=True)
 		else:
 			imfilelist = glob.glob(impaths, recursive=True)
 
@@ -206,6 +218,31 @@ def loadLocalImages(impaths='*.jpg', googleDrive=True ):
 
 def injectFloat(floatstring='1.0'):
 	return(float(floatstring))
+
+
+
+
+def loadFromDropboxFolder(folderURL="https://www.dropbox.com/s/qxdfncdakdzm9yu/BHRBuildingSamples.zip?dl=0"):
+  if (folderURL.split('?')[-1]=='dl=0'):
+    print("Downloading "+folderURL+" to file")
+    folderURL=folderURL.split('dl=')[0]+'dl=1'
+    r = requests.get(folderURL, allow_redirects=True)
+    with open('images.zip', 'wb') as myf:
+      myf.write(r.content)
+
+
+
+    outdir = "./images"
+    k=0
+    while os.path.isdir(outdir):
+      k+=1
+      outdir = "./images"+str(k)
+    print("Unzipping folder " + outdir)
+
+    shutil.unpack_archive("images.zip", outdir)
+    print("Reading files from "+outdir+'/**/')
+
+    return loadLocalImages(outdir+'/**/*',googleDrive=False)
 
 ### IMAGE PROCESSING
 

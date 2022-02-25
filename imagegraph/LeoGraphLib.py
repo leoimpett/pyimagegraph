@@ -16,7 +16,7 @@ from scipy.spatial import distance
 
 
 
-import os, tarfile, sys
+import os, tarfile, sys, shutil
 import skimage.feature
 #Probably not good that skimage.io is refered to in the same way as the io library (as in io.BytesIO)
 
@@ -218,6 +218,31 @@ def loadLocalImages(impaths='*.jpg', googleDrive=True, extensions=['jpg','png','
 
 def injectFloat(floatstring='1.0'):
 	return(float(floatstring))
+
+
+
+
+def loadFromDropboxFolder(folderURL="https://www.dropbox.com/s/qxdfncdakdzm9yu/BHRBuildingSamples.zip?dl=0"):
+  if (folderURL.split('?')[-1]=='dl=0'):
+    print("Downloading "+folderURL+" to file")
+    folderURL=folderURL.split('dl=')[0]+'dl=1'
+    r = requests.get(folderURL, allow_redirects=True)
+    with open('images.zip', 'wb') as myf:
+      myf.write(r.content)
+
+
+
+    outdir = "./images"
+    k=0
+    while os.path.isdir(outdir):
+      k+=1
+      outdir = "./images"+str(k)
+    print("Unzipping folder " + outdir)
+
+    shutil.unpack_archive("images.zip", outdir)
+    print("Reading files from "+outdir+'/**/')
+
+    return loadLocalImages(outdir+'/**/*',googleDrive=False)
 
 ### IMAGE PROCESSING
 
