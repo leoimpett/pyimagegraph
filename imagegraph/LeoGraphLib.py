@@ -3,7 +3,7 @@ from matplotlib import pyplot as plt
 import tqdm, glob
 from skimage.filters.rank import entropy
 from skimage.morphology import disk
-from sklearn import manifold
+from sklearn import manifold, decomposition
 import urllib, json
 from PIL import Image
 from io import BytesIO
@@ -351,10 +351,19 @@ def detectFaces(imList):
 
 #### DATA MANIPULATION
 
-def reduceDims(vecList):
-	my_tsne = manifold.TSNE(n_components=2)
+def reduceDims(vecList, method="TSNE"):
+	if method not in ["TSNE", "UMAP", "PCA"]:
+		raise ValueError("The *method* argument of ig.reduceDims should be one of: TSNE, UMAP, or PCA")
+	
 	vecArr = np.asarray(vecList)
-	xy = my_tsne.fit_transform(vecList)
+	if method == "TSNE":
+		reducer = manifold.TSNE(n_components=2)
+	if method == "UMAP":
+		import umap
+		reducer = umap.UMAP()
+	if method == "PCA":
+		reducer = decomposition.PCA(n_components=2)
+	xy = reducer.fit_transform(vecList)
 	return xy[:,0], xy[:,1]
 
 

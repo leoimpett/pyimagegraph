@@ -14,7 +14,7 @@ setuptools.setup(
     url="https://github.com/leoimpett/pyimagegraph",
     packages=setuptools.find_packages(),
     # PUT PIP NAMES OF REQUIRED PACKAGES THAT ARE NOT ON COLAB HERE:
-    install_requires=[], 
+    install_requires=["umap-learn"], 
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
