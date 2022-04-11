@@ -360,7 +360,7 @@ def reduceDims(vecList, method="TSNE"):
 		reducer = manifold.TSNE(n_components=2)
 	if method == "UMAP":
 		import umap
-		reducer = umap.UMAP()
+		reducer = umap.UMAP(min_dist=2, spread=5)
 	if method == "PCA":
 		reducer = decomposition.PCA(n_components=2)
 	xy = reducer.fit_transform(vecList)
