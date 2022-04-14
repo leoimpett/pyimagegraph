@@ -15,13 +15,14 @@ from skimage import io, transform, color
 from scipy.spatial import distance
 
 
-
-
 import os, tarfile, sys, shutil
 import skimage.feature
 #Probably not good that skimage.io is refered to in the same way as the io library (as in io.BytesIO)
 
-
+from bokeh.plotting import figure, output_file, show
+from bokeh.models import glyphs, ColumnDataSource, tools
+from bokeh.io import output_notebook
+from bokeh.plotting import figure, show, output_file
 
 
 
@@ -450,30 +451,27 @@ def scatterPlot(X_in, Y_in):
 
 
 def scatterImages(imCollection, xCoords, yCoords, imSizeFactor=1.0):
-	imlist = [im['arrays'] for im in imCollection]
-	plt.figure(figsize=(15,15))
+	output_notebook()
 	
 	imwidth = np.ceil((np.max(xCoords) - np.min(xCoords))/ (0.15*len(xCoords))*imSizeFactor)
 	imheight = np.ceil((np.max(yCoords) - np.min(yCoords))/ (0.15*len(xCoords))*imSizeFactor)
 	imwidth = np.max([imwidth, 0])
 	imheight = np.max([imheight, 0])
+	FrameRatio=(np.max(xCoords+imwidth)-np.min(xCoords-imwidth))/(np.max(yCoords+imwidth)-np.min(yCoords-imwidth))
+	p = figure(aspect_scale=FrameRatio, match_aspect=True, x_range=[np.min(xCoords-imwidth), np.max(xCoords+imwidth)],y_range=[np.min(yCoords-imwidth), np.max(yCoords+imwidth)], active_scroll ="wheel_zoom", plot_width=800)
 	print('plotting images...')
-	#plt.scatter(xCoords, yCoords)
 	for i in tqdm.tqdm(range(len(xCoords))):
-		thisim = imlist[i]
-
-		thisAspectRatio = thisim.shape[0]/thisim.shape[1]
-
-		left = xCoords[i]
-		right = left+imwidth
-		bottom = yCoords[i]
-		top = bottom+np.ceil(imheight*thisAspectRatio)
-
-		plt.imshow(thisim, extent=[left, right, bottom, top])
-
-	plt.axis('off')
-	plt.xlim([np.min(xCoords-imwidth), np.max(xCoords+imwidth)])
-	plt.ylim([np.min(yCoords-imwidth), np.max(yCoords+imwidth)])
+		imAspectRatio=imCollection[i]['arrays'].shape[0]/imCollection[i]['arrays'].shape[1]
+		if imAspectRatio <= 1.0:
+			p.image_url(url=[imCollection[i]['urls']], x=xCoords[i], y=yCoords[i],w=imwidth,h=imwidth*imAspectRatio)
+		else:
+			p.image_url(url=[imCollection[i]['urls']], x=xCoords[i], y=yCoords[i],w=imwidth/imAspectRatio,h=imheight)
+	
+	p.xgrid.grid_line_color = None
+	p.ygrid.grid_line_color = None
+	p.xaxis.visible = False
+	p.yaxis.visible = False
+	show(p)
 	return 0
 
 def cart2pol(x, y):
