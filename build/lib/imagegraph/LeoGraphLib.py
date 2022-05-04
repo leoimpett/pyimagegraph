@@ -19,11 +19,13 @@ import os, tarfile, sys, shutil
 import skimage.feature
 #Probably not good that skimage.io is refered to in the same way as the io library (as in io.BytesIO)
 
-from bokeh.plotting import figure, output_file, show
-from bokeh.models import glyphs, ColumnDataSource, tools
-from bokeh.io import output_notebook
-from bokeh.plotting import figure, show, output_file
+import pandas as pd
 
+from bokeh.plotting import figure, output_file, show
+from bokeh.io import show, output_notebook
+from bokeh.layouts import layout, row, column
+from bokeh.models import glyphs, ColumnDataSource, tools, CustomJS, Select, HoverTool, Label, LabelSet
+from bokeh.models.widgets import Div
 
 
 
@@ -564,52 +566,136 @@ def showTwoImageSets(imCollection1, imCollection2):
 
 	return 0
 
-def displayNearestNeighbors(imCollection1, imCollection2, distanceMatrix, queryList=[], imageheight=100):
+def displayNearestNeighbors(imCollection1, imCollection2, distanceMatrix):
 
-	# first, choose 4 random images to be centres...
-	L = distanceMatrix.shape[1]
-	w = distanceMatrix.shape[0]
-	w2 = min(4,w)
-	nearest = np.zeros((4,L)).astype(int)
+	imgs1 = [imCollection1[x]['urls'] for x in range(len(imCollection1))]
+	meta1 = [imCollection1[x]['meta'] for x in range(len(imCollection1))]
+	imAspectRatio=[imCollection1[x]['arrays'].shape[0]/imCollection1[x]['arrays'].shape[1] for x in range(len(imCollection1))]
+	imgs2 = [imCollection2[x]['urls'] for x in range(len(imCollection2))]
+	meta2=[imCollection2[x]['meta'] for x in range(len(imCollection2))]
+	NNind=[]
+	NNurls=[]
+	NNmetas=[]
+	for i in range(len(imCollection1)):
+		NNind.append(list(np.argsort(distanceMatrix[i])[1:11]))
+		NNurl=[]
+		NNmeta=[]
+		for j in list(np.argsort(distanceMatrix[i])[1:11]):
+			NNurl.append(imgs2[j])
+			NNmeta.append(meta2[j])
+		NNurls.append(NNurl)
+		NNmetas.append(NNmeta)
 
-	centres = []
-	for i in range(w2):
-		if queryList:
-			centres.append(queryList[i])
-		else:
-			idx = np.random.randint(w)
-			centres.append(idx)
+	df=pd.DataFrame({})
+	df['url']=imgs1
+	df['meta']=meta1
+	df['ar']=imAspectRatio
+	df['10nn'] = NNind
+	df['10nn_urls'] = NNurls
+	df['10nn_meta'] = NNmetas
+	
+	source = ColumnDataSource(df)
+	source2 = ColumnDataSource(data=dict(
+	x=[0.5, 1.5, 2.5, 3.5, 4.5, 5.5, 6.5, 7.5, 8.5, 9.5],
+	y=10*[2],
+	color=['#990000','#b30000','#e60000','#ff0000','#ff3333','#ff4d4d','#ff8080','#ffb3b3', '#ffcccc','#ffe6e6'],
+	width=10*[1], 
+	height=10*[0.6],
+	NN=df['10nn_meta'][0]))
+	
+	source3=ColumnDataSource(data=dict(
+		url=[df['url'].tolist()[0]],
+		x=[0],
+		y=[1],
+		w=[1],
+		h=[df['ar'].tolist()[0]]
+	))
 
-	for i in range(w2):
-		nearest[i,:] =  np.argsort(distanceMatrix[centres[i],:])
+	p = figure(width=200, match_aspect=True, aspect_ratio=1,toolbar_location=None)
+	im = p.image_url(source=source3, x='x', y='x', w='w', h='h')
+	p.ygrid.grid_line_color = None
+	p.xaxis.visible = False
+	p.yaxis.visible = False
+	p.xgrid.grid_line_color = None
+	p.outline_line_color= None
+	
+	p2= figure(x_range=(0,10), y_range=(0,1), match_aspect=True, aspect_ratio=10, width=900, toolbar_location=None )
+	im1=p2.image_url(url=[source.data['10nn_urls'][0][0]], x=0, y=1, w=1, h=1)
+	im2=p2.image_url(url=[source.data['10nn_urls'][0][1]], x=1, y=1, w=1, h=1)
+	im3=p2.image_url(url=[source.data['10nn_urls'][0][2]], x=2, y=1, w=1, h=1)
+	im4=p2.image_url(url=[source.data['10nn_urls'][0][3]], x=3, y=1, w=1, h=1)
+	im5=p2.image_url(url=[source.data['10nn_urls'][0][4]], x=4, y=1, w=1, h=1)
+	im6=p2.image_url(url=[source.data['10nn_urls'][0][5]], x=5, y=1, w=1, h=1)
+	im7=p2.image_url(url=[source.data['10nn_urls'][0][6]], x=6, y=1, w=1, h=1)
+	im8=p2.image_url(url=[source.data['10nn_urls'][0][7]], x=7, y=1, w=1, h=1)
+	im9=p2.image_url(url=[source.data['10nn_urls'][0][8]], x=8, y=1, w=1, h=1)
+	im10=p2.image_url(url=[source.data['10nn_urls'][0][9]], x=9, y=1, w=1, h=1)
+	p2.ygrid.grid_line_color = None
+	p2.xaxis.visible = False
+	p2.yaxis.visible = False
+	p2.xgrid.grid_line_color = None
+	
+	hover = HoverTool(tooltips=[('', '@NN')])
+	p3 = figure(x_range=(0,10), y_range=(0,2), match_aspect=True, aspect_ratio=10, width=900, toolbar_location=None )
+	p3.rect('x','y',color='color', source=source2, width='width', height='height')
+	p3.add_tools(hover)
+	p3.ygrid.grid_line_color = None
+	p3.xaxis.visible = False
+	p3.yaxis.visible = False
+	p3.xgrid.grid_line_color = None
+	p3.outline_line_color= None
 
-	htmlString = """<style>
-	.igfilename {
-	font-family: monospace;
-	color:white;
-	background-color: rgba(0,0,0,0.3);
-	text-align:center !important;
-	}"""
-	urlList1 = [imc['urls'] for imc in imCollection1]
-	imNames1 = [imc['meta'] for imc in imCollection1]
-	urlList2 = [imc['urls'] for imc in imCollection2]
-	imNames2 = [imc['meta'] for imc in imCollection2]
-	for i in range(w2):
-		htmlString += ".nnmyimage"+str(i)+"{display:none;} #myimage"+str(i)+":hover ~ .nnmyimage"+str(i)+"{display:inline-block;} #myimage"+str(i)+":hover{opacity:0.8;}"
-	htmlString += """.imagebox{margin-top: 5px; margin-bottom:5px; float:left;width:25%;height:""" + str(imageheight) + """px;background-size: contain; background-position: center; background-repeat: no-repeat;}
-	</style>
-	<div style=" height:""" + str(imageheight*5) + """px; width:100%; display:inline-block; position:relative;">
-	"""
-	for i in range(min(4,len(imCollection1))):
-		k = centres[i]
-		htmlString += "<div class='imagebox' id='myimage"+str(i)+"' style='background-image: url( " + '"' + urlList1[k] + '"' + ")' > <p class='igfilename'>" + imNames1[k] +  "</p> </div> "
-	htmlString +="""
-		<div style="float:left; clear:left; background-color: lightgray; width:100%; height:2px;"> </div>  """
-	for i in range(min(4,len(imCollection1))):
-		for j in range(min(16,len(imCollection2))):
-			htmlString+= "<div class='imagebox nnmyimage"+str(i)+"' style='background-image: url( " + '"' + urlList2[nearest[i,j]] + '"' + ")' > <p class='igfilename'>" + imNames2[nearest[i,j]] +  "</p> </div> "
-	htmlString += "</div>"
-	display(HTML(htmlString))
+	cb = CustomJS(args=dict(im=im, im1=im1, source=source, source2=source2, source3=source3, im2=im2, im3=im3, im4=im4, im5=im5, im6=im6, im7=im7, im8=im8, im9=im9, im10=im10 ), code="""
+		  for (var i = 0; i <= source.data['url'].length; i++){
+			  if (source.data['meta'][i] == cb_obj.value) {
+				  var b=i;
+			  } 
+		  }
+		  var data3 = source3.data;
+		  var url= data3['url'];
+		  var h = data3['h'];
+		  h[0] = source.data['ar'][b];
+		  url[0] = source.data['url'][b];
+		  source3.change.emit();
+
+		  im1.data_source.data['url'] = [source.data['10nn_urls'][b][0]];
+		  im1.data_source.change.emit();
+		  im2.data_source.data['url'] = [source.data['10nn_urls'][b][1]];
+		  im2.data_source.change.emit();
+		  im3.data_source.data['url'] = [source.data['10nn_urls'][b][2]];
+		  im3.data_source.change.emit();
+		  im4.data_source.data['url'] = [source.data['10nn_urls'][b][3]];
+		  im4.data_source.change.emit();
+		  im5.data_source.data['url'] = [source.data['10nn_urls'][b][4]];
+		  im5.data_source.change.emit();
+		  im6.data_source.data['url'] = [source.data['10nn_urls'][b][5]];
+		  im6.data_source.change.emit();
+		  im7.data_source.data['url'] = [source.data['10nn_urls'][b][6]];
+		  im7.data_source.change.emit();
+		  im8.data_source.data['url'] = [source.data['10nn_urls'][b][7]];
+		  im8.data_source.change.emit();
+		  im9.data_source.data['url'] = [source.data['10nn_urls'][b][8]];
+		  im9.data_source.change.emit();
+		  im10.data_source.data['url'] = [source.data['10nn_urls'][b][9]];
+		  im10.data_source.change.emit();
+
+		  const data2 = source2.data;
+		  const x = data2['x'];
+		  const y = data2['y'];
+		  const nn = data2['NN'];
+		  for (let i = 0; i < x.length; i++) {
+				  nn[i] = source.data['10nn_meta'][b][i]
+			  }
+		  source2.change.emit();
+
+	   """)	
+	
+	div = Div(text="Ten most similar images")
+	options=df['meta'].tolist()
+	select = Select(title="Image file name:", value=df['meta'].tolist()[0], options=options, width=190)
+	select.js_on_change("value", cb)
+	layout=row(column(select,p), column(div, p2, p3) )
+	show(layout)
 	return 0
 
 
