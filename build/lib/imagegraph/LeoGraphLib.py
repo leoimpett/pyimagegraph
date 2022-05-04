@@ -567,7 +567,9 @@ def showTwoImageSets(imCollection1, imCollection2):
 	return 0
 
 def displayNearestNeighbors(imCollection1, imCollection2, distanceMatrix):
-
+	
+	output_notebook()
+	
 	imgs1 = [imCollection1[x]['urls'] for x in range(len(imCollection1))]
 	meta1 = [imCollection1[x]['meta'] for x in range(len(imCollection1))]
 	imAspectRatio=[imCollection1[x]['arrays'].shape[0]/imCollection1[x]['arrays'].shape[1] for x in range(len(imCollection1))]
