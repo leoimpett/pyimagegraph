@@ -224,7 +224,7 @@ def injectFloat(floatstring='1.0'):
 
 
 
-def loadDropboxFolder(folderURL="https://www.dropbox.com/s/qxdfncdakdzm9yu/BHRBuildingSamples.zip?dl=0"):
+def loadDropboxFolder(folderURL="https://www.dropbox.com/sh/p5fngaj2mpccyjl/AACN0ErBKE1PgDh3LUrpJL4Ea?dl=0"):
 # Written Leo Impett + Eva Cetinic 2022
 
   if (folderURL.split('?')[-1]=='dl=0'):
