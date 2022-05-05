@@ -538,8 +538,24 @@ def saveAsGIF(imL, imsize=512):
 	return 0
 
 
-def showAllImages(imL):
-	print('This function has still to be implemented. Try swapping me for saveAsGif(imL??)')
+def showAllImages(imCollection):
+	data=np.array([np.squeeze(np.expand_dims(transform.resize(im['arrays'],(224,224)), axis=0), axis=0) for im in imCollection])
+	if len(data.shape) == 3:
+		data = np.tile(data[...,np.newaxis], (1,1,1,3))
+	data = data.astype(np.float32)
+	min = np.min(data.reshape((data.shape[0], -1)), axis=1)
+	data = (data.transpose(1,2,3,0) - min).transpose(3,0,1,2)
+	max = np.max(data.reshape((data.shape[0], -1)), axis=1)
+	data = (data.transpose(1,2,3,0) / max).transpose(3,0,1,2)
+	n = int(np.ceil(np.sqrt(data.shape[0])))
+	padding = ((0, n ** 2 - data.shape[0]), (0, 0), (0, 0)) + ((0, 0),) * (data.ndim - 3)
+	data = np.pad(data, padding, mode='constant', constant_values=0)
+	data = data.reshape((n, n) + data.shape[1:]).transpose((0, 2, 1, 3) + tuple(range(4, data.ndim + 1)))
+	data = data.reshape((n * data.shape[1], n * data.shape[3]) + data.shape[4:])
+	data = (data * 255).astype(np.uint8)
+	plt.figure(figsize = (12,12))
+	plt.axis('off')
+	plt.imshow(data)
 	return 0
 
 
